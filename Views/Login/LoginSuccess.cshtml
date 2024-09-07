@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "LoginSuccess";
+}
+
+<h1>Login is successfull!</h1>
+<h3>You will be redirected shortly to our homepage!</h3>
+
+<script>
+    // Use setTimeout function to delay the redirection
+    setTimeout(function () {
+        // Redirect to the home page
+        window.location.href = "/Home/HomePage";
+    }, 3500); 
+</script>
+
