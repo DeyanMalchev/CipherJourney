@@ -1,4 +1,4 @@
-using Experiments.Services;
+using CipherJourney.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Experiments

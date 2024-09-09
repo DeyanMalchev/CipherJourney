@@ -1,9 +1,9 @@
-﻿using Experiments.Models;
-using Experiments.Services;
+﻿using CipherJourney.Services;
+using Experiments.Models;
 using Microsoft.AspNetCore.Mvc;
 using NETCore.MailKit.Core;
 
-namespace Experiments.Controllers
+namespace CipherJourney.Controllers
 {
     public class SignUpController : Controller
     {
@@ -27,9 +27,9 @@ namespace Experiments.Controllers
         {
             if (ModelState.IsValid)
             {
-
-                return View("../Email/EmailVerification");/*
-                DB_Querries.AddUser(signUpModel,_context);*/
+                DB_Queries.CheckIfUserExists(signUpModel, _context);
+                _emailService.SendEmailAsync(signUpModel.Email);
+                return View("EmailVerification", signUpModel.Email);
             }
 
             // If ModelState is not valid, return the SignUp view with errors

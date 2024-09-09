@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Experiments.Controllers
+namespace CipherJourney.Controllers
 {
     public class AboutController : Controller
     {

@@ -1,11 +1,11 @@
 ﻿using System.Net.Mail;
 using System.Net;
 
-namespace Experiments.Services
+namespace CipherJourney.Services
 {
     public interface IEmailService
     {
-        Task SendEmailAsync(string email, string subject, string message);
+        Task SendEmailAsync(string email);
     }
 
     public class EmailService : IEmailService
@@ -17,15 +17,17 @@ namespace Experiments.Services
             _configuration = configuration;
         }
 
-        public async Task SendEmailAsync(string email, string subject, string message)
+        public async Task SendEmailAsync(string email)
         {
             string from = _configuration["Email:CipherJourney"];
             string to = email;
+            string subject = "Verification code for your CipherJourney!";
+            string message = "You verification code is: " + DB_Queries.GenerateVerificationToken();
 
-            using (var messageSenderToReceiver = new MailMessage(from, to))
+            using (var emailSender = new MailMessage(from, to))
             {
-                messageSenderToReceiver.Subject = subject;
-                messageSenderToReceiver.Body = message;
+                emailSender.Subject = subject;
+                emailSender.Body = message;
 
                 using (var client = new SmtpClient("smtp.gmail.com", 587))
                 {
@@ -37,7 +39,7 @@ namespace Experiments.Services
 
                     try
                     {
-                        await client.SendMailAsync(messageSenderToReceiver);
+                        await client.SendMailAsync(emailSender);
                         Console.WriteLine("Email sent successfully!");
                     }
                     catch (Exception ex)

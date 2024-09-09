@@ -1,7 +1,7 @@
 ﻿using Experiments.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Experiments.Services
+namespace CipherJourney.Services
 {
     public class SignUpContext : DbContext
     {

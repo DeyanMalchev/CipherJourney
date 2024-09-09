@@ -2,7 +2,7 @@ using Experiments.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace Experiments.Controllers
+namespace CipherJourney.Controllers
 {
     public class HomeController : Controller
     {

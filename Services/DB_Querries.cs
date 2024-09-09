@@ -3,17 +3,22 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 
-namespace Experiments.Services
+namespace CipherJourney.Services
 {
     public class DB_Queries
     {
-        public static void AddUser(SignUpModel model, SignUpContext _context)
+
+        public static void CheckIfUserExists(SignUpModel model, SignUpContext _context)
         {
-            // Check if username or email already exists
             if (_context.Users.Any(u => u.Username == model.Username || u.Email == model.Email))
             {
                 throw new InvalidOperationException("Username or Email already exists.");
             }
+        }
+
+        public static void AddUser(SignUpModel model, SignUpContext _context, string verificationCode)
+        {
+            // Check if username or email already exists
 
             byte[] salt = GenerateSalt();
             var newUser = new User
@@ -23,7 +28,7 @@ namespace Experiments.Services
                 Salt = salt,
                 Password = HashPassword(model.Password, salt),
                 IsEmailVerified = false,
-                VerificationToken = GenerateVerificationToken()
+                VerificationToken = verificationCode
             };
 
             // Add the new user to the Users DbSet
@@ -33,7 +38,7 @@ namespace Experiments.Services
             _context.SaveChanges();
         }
 
-        private static string GenerateVerificationToken()
+        public static string GenerateVerificationToken()
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             var random = new Random();

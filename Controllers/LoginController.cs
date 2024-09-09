@@ -1,8 +1,8 @@
-﻿using Experiments.Models;
-using Experiments.Services;
+﻿using CipherJourney.Services;
+using Experiments.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Experiments.Controllers
+namespace CipherJourney.Controllers
 {
     public class LoginController : Controller
     {
@@ -13,7 +13,8 @@ namespace Experiments.Controllers
             _context = context;
         }
 
-        public IActionResult Login() {
+        public IActionResult Login()
+        {
             return View("Login");
         }
 
@@ -37,10 +38,10 @@ namespace Experiments.Controllers
 
                 }
 
-                Response.Cookies.Append("Authenticated", (user.Id).ToString());
+                Response.Cookies.Append("Authenticated", user.Id.ToString());
                 return View("LoginSuccess");
             }
-            return View("Login",loginModel);
+            return View("Login", loginModel);
         }
     }
 }
