@@ -5,7 +5,7 @@
 namespace Experiments.Migrations
 {
     /// <inheritdoc />
-    public partial class FullDataDB : Migration
+    public partial class TwoTableDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,13 +16,10 @@ namespace Experiments.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),  // Changed type
+                    Username = table.Column<string>(type: "nvarchar(32)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Salt = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Score = table.Column<int>(type: "int", nullable: false),
-                    DailyAmountDone = table.Column<int>(type: "int", nullable: false),
-                    WeeklyAmountDone = table.Column<int>(type: "int", nullable: false),
                     IsEmailVerified = table.Column<bool>(type: "bit", nullable: false),
                     VerificationToken = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false)
                 },
@@ -45,13 +42,44 @@ namespace Experiments.Migrations
                 name: "IX_Users_VerificationToken",
                 table: "Users",
                 column: "VerificationToken");
+
+            migrationBuilder.CreateTable(
+                name: "UserPoints",
+                    columns: table => new
+                    {
+                        Id = table.Column<int>(type: "int", nullable: false)
+                            .Annotation("SqlServer:Identity", "1, 1"),
+                        UserId = table.Column<int>(type: "int", nullable: false),
+                        Score = table.Column<int>(type: "int", nullable: false),
+                        DailyAmountDone = table.Column<int>(type: "int", nullable: false),
+                        WeeklyAmountDone = table.Column<int>(type: "int", nullable: false)
+                    },
+                    constraints: table =>
+                    {
+                        table.PrimaryKey("PK_UserPoints", x => x.Id);
+                        table.ForeignKey(
+                            name: "FK_UserPoints_Users_UserId",
+                            column: x => x.UserId,
+                            principalTable: "Users",
+                            principalColumn: "Id",
+                            onDelete: ReferentialAction.Cascade);
+                    });
+
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserPoints_UserId",
+                table: "UserPoints",
+                column: "UserId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+
             migrationBuilder.DropTable(
                 name: "Users");
+            migrationBuilder.DropTable(
+                name: "UserPoints");
         }
     }
 }
