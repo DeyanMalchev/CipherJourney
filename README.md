@@ -11,17 +11,6 @@ you can challenge yourself and climb the leaderboard by deciphering daily messag
 + Signup/Login: Secure signup and login functionality to authenticate users and track their progress.
 + Cookies: We use cookies to maintain user authentication status and enhance user experience.
 
-## Getting Started
-To get started with CipherJourney, follow these steps:
-+ Clone the repository: git clone https://github.com/Deiangh/CipherJourney.git
-+ Install dependencies: npm install (if using Node.js) or dotnet restore (if using .NET Core)
-+ Configure the database connection string in appsettings.json (if using .NET Core)
-+ Build and run the project: npm start or dotnet run
-
-## Usage
-Once the project is running, users can navigate to the signup/login page to create an account or login if they already have one. After logging in, 
-users can start deciphering messages, earn points, and climb the leaderboard.
-
 ## License
 This project is licensed under the GPL-3.0 license.
 
