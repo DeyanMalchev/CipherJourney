@@ -13,10 +13,10 @@ namespace CipherJourney.Controllers
         }
 
 
-        private readonly SignUpContext _context;
+        private readonly CipherJourneyDBContext _context;
         private readonly Services.IEmailService _emailService;
 
-        public SignUpController(SignUpContext context, Services.IEmailService emailService)
+        public SignUpController(CipherJourneyDBContext context, Services.IEmailService emailService)
         {
             _context = context;
             _emailService = emailService;

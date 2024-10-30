@@ -8,7 +8,7 @@ namespace CipherJourney.Services
     public class DB_Queries
     {
 
-        public static void CheckIfUserExists(SignUpModel model, SignUpContext _context)
+        public static void CheckIfUserExists(SignUpModel model, CipherJourneyDBContext _context)
         {
             if (_context.Users.Any(u => u.Username == model.Username || u.Email == model.Email))
             {
@@ -16,7 +16,7 @@ namespace CipherJourney.Services
             }
         }
 
-        public static void AddUser(SignUpModel model, SignUpContext _context, string verificationCode)
+        public static void AddUser(SignUpModel model, CipherJourneyDBContext _context, string verificationCode)
         {
             // Check if username or email already exists
 
@@ -62,7 +62,7 @@ namespace CipherJourney.Services
                 numBytesRequested: 256 / 8));
         }
 
-        public static User? LoginUser(string username, string password, LoginContext _context)
+        public static User? LoginUser(string username, string password, CipherJourneyDBContext _context)
         {
             // Find the user by username
             var user = _context.Users.FirstOrDefault(u => u.Username == username);

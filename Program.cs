@@ -16,12 +16,11 @@ namespace Experiments
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            builder.Services.AddDbContext<SignUpContext>(options => {
+            builder.Services.AddDbContext<CipherJourneyDBContext>(options => {
                 options.UseSqlServer(connectionString);
             });
-            builder.Services.AddDbContext<LoginContext>(options => {
-                options.UseSqlServer(connectionString);
-            });
+
+            builder.Services.AddScoped<IEmailService, EmailService>();
 
             var app = builder.Build();
             

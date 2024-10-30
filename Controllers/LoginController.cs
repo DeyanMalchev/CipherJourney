@@ -7,8 +7,8 @@ namespace CipherJourney.Controllers
     public class LoginController : Controller
     {
 
-        private readonly LoginContext _context;
-        public LoginController(LoginContext context)
+        private readonly CipherJourneyDBContext _context;
+        public LoginController(CipherJourneyDBContext context)
         {
             _context = context;
         }
