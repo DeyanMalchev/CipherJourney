@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Experiments.Models
+namespace CipherJourney.Models
 {
     public class LoginModel
     {

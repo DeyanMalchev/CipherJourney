@@ -1,5 +1,5 @@
 ﻿using CipherJourney.Services;
-using Experiments.Models;
+using CipherJourney.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CipherJourney.Controllers

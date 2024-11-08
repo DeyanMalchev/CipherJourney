@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Experiments.Models
+namespace CipherJourney.Models
 {
     public class User
     {
@@ -22,10 +22,6 @@ namespace Experiments.Models
         [MinLength(8, ErrorMessage = "Password must be at least 8 characters long.")]
         public byte[] Salt { get; set; }
         public string Password { get; set; }
-
-        public int Score { get; set; }
-        public int DailyAmountDone { get; set; }
-        public int WeeklyAmountDone { get; set; }
 
         // Email verification properties
         public bool IsEmailVerified { get; set; }

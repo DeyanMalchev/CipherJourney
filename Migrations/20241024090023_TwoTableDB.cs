@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Experiments.Migrations
+namespace CipherJourney.Migrations
 {
     /// <inheritdoc />
     public partial class TwoTableDB : Migration

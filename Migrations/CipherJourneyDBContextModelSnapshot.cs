@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Experiments.Migrations
+namespace CipherJourney.Migrations
 {
     [DbContext(typeof(CipherJourneyDBContext))]
     partial class CipherJourneyDBContextModelSnapshot : ModelSnapshot
@@ -21,7 +21,7 @@ namespace Experiments.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Experiments.Models.User", b =>
+            modelBuilder.Entity("CipherJourney.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

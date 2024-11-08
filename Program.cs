@@ -1,7 +1,7 @@
 using CipherJourney.Services;
 using Microsoft.EntityFrameworkCore;
 
-namespace Experiments
+namespace CipherJourney
 {
     public class Program
     {

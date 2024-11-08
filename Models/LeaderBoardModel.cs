@@ -1,4 +1,4 @@
-﻿namespace Experiments.Models
+﻿namespace CipherJourney.Models
 {
     public class LeaderBoardModel
     {

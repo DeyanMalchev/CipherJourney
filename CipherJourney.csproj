@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <StartupObject>Experiments.Program</StartupObject>
+    <StartupObject>CipherJourney.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
