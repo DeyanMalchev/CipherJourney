@@ -29,7 +29,7 @@ namespace CipherJourney.Controllers
             {
                 DB_Queries.CheckIfUserExists(signUpModel, _context);
                 _emailService.SendEmailAsync(signUpModel.Email);
-                return View("EmailVerification", signUpModel.Email);
+                return View("..\\Email\\EmailVerification", signUpModel.Email);
             }
 
             // If ModelState is not valid, return the SignUp view with errors
