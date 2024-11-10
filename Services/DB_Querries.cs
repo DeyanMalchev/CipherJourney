@@ -8,6 +8,7 @@ namespace CipherJourney.Services
     public class DB_Queries
     {
 
+        // Check if the user exists on signUp
         public static void CheckIfUserExists(SignUpModel model, CipherJourneyDBContext _context)
         {
             if (_context.Users.Any(u => u.Username == model.Username || u.Email == model.Email))
@@ -15,6 +16,7 @@ namespace CipherJourney.Services
                 throw new InvalidOperationException("Username or Email already exists.");
             }
         }
+
 
         public static void AddUser(SignUpModel model, CipherJourneyDBContext _context, string verificationCode)
         {
