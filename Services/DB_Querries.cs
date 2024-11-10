@@ -18,7 +18,6 @@ namespace CipherJourney.Services
 
         public static void AddUser(SignUpModel model, CipherJourneyDBContext _context, string verificationCode)
         {
-            // Check if username or email already exists
 
             byte[] salt = GenerateSalt();
             var newUser = new User
