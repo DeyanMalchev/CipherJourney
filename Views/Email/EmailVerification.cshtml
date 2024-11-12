@@ -1,8 +1,20 @@
-﻿@model string
+﻿@model CipherJourney.Models.EmailVerificationModel;
+
 
 @{
-    ViewData["Title"] = "CipherJourney-Verification";
+    ViewData["Title"] = "CipherJourney - Verification";
 }
 
-<h1 style="display: flex; flex-direction: row; align-items: center; justify-content: center;">An Email has been sent to: @Model</h1>
-<input style="display: flex; flex-direction: row; align-items: center; justify-content: center;" type="text" placeholder="Enter you code here..."/>
+<h1 style="text-align: center;">An Email has been sent to: @Model.Email</h1>
+
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 20px;">
+    <form asp-controller="SignUp" asp-action="VerifyCode" method="post">
+        <input asp-for="Email" type="hidden" />
+        <div class="form-group">
+            <input asp-for="InputToken" class="form-control" type="text"
+                   placeholder="Enter your code here..."
+                   style="padding: 10px; width: 300px; margin-bottom: 10px;" />
+            <button type="submit" class="btn btn-primary">Verify</button>
+        </div>
+    </form>
+</div>

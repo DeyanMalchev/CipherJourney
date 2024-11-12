@@ -28,12 +28,55 @@ namespace CipherJourney.Controllers
             if (ModelState.IsValid)
             {
                 DB_Queries.CheckIfUserExists(signUpModel, _context);
-                _emailService.SendEmailAsync(signUpModel.Email);
-                return View("..\\Email\\EmailVerification", signUpModel.Email);
+
+                var verificationToken = DB_Queries.GenerateVerificationToken();
+                DB_Queries.AddUser(signUpModel, _context, verificationToken);
+                _emailService.SendEmailAsync(signUpModel.Email, verificationToken);
+
+                var emailVerificationModel = new EmailVerificationModel
+                {
+                    Email = signUpModel.Email
+                };
+
+                return View("..\\Email\\EmailVerification", emailVerificationModel);
             }
 
             // If ModelState is not valid, return the SignUp view with errors
             return View("SignUp", signUpModel);
         }
+
+        public IActionResult VerifyCode(EmailVerificationModel emailVerificationModel)
+        {
+            if (ModelState.IsValid)
+            {
+                Console.WriteLine("model is valid");
+
+                var user = _context.Users.FirstOrDefault(u => u.Email == emailVerificationModel.Email);
+                if (user != null)
+                {
+                    Console.WriteLine("user found");
+
+                    if (user.VerificationToken.Equals(emailVerificationModel.InputToken))
+                    {
+                        Console.WriteLine("verification token matches");
+
+                        user.IsEmailVerified = true;
+                        _context.SaveChanges();
+                        return View("SignUpSuccess"); // Redirect to a success page
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("user not found");
+                }
+            }
+            else
+            {
+                Console.WriteLine("model is invalid");
+            }
+
+            return View("..\\Email\\EmailVerification", emailVerificationModel);
+        }
+
     }
 }

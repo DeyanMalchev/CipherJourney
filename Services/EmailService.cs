@@ -5,7 +5,7 @@ namespace CipherJourney.Services
 {
     public interface IEmailService
     {
-        Task SendEmailAsync(string email);
+        Task SendEmailAsync(string email, string verificationToken);
     }
 
     public class EmailService : IEmailService
@@ -17,12 +17,12 @@ namespace CipherJourney.Services
             _configuration = configuration;
         }
 
-        public async Task SendEmailAsync(string email)
+        public async Task SendEmailAsync(string email, string verificationToken)
         {
             string from = _configuration["Email:CipherJourney"];
             string to = email;
             string subject = "Verification code for your CipherJourney!";
-            string message = "You verification code is: " + DB_Queries.GenerateVerificationToken();
+            string message = "You verification code is: " + verificationToken;
 
             using (var emailSender = new MailMessage(from, to))
             {
