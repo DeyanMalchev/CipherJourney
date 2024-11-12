@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 
 namespace CipherJourney.Services
 {
-    public class DB_Querries
+    public class DB_Queries
     {
 
         // Check if the user exists on signUp
