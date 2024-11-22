@@ -63,10 +63,33 @@ namespace CipherJourney.Services
                 numBytesRequested: 256 / 8));
         }
 
-        public static User? LoginUser(string username, string password, CipherJourneyDBContext _context)
+        public static User? LoginUsername(string username, string password, CipherJourneyDBContext _context)
         {
             // Find the user by username
             var user = _context.Users.FirstOrDefault(u => u.Username == username);
+            if (user == null)
+            {
+                return null;
+            }
+
+            // Hash the input password with the stored salt and compare
+            var hashedPassword = HashPassword(password, user.Salt);
+            if (hashedPassword == user.Password)
+            {
+                if (user.IsEmailVerified == true) 
+                { 
+                    return user;
+                }
+
+            }
+
+            return null;
+        }
+
+        public static User? LoginEmail(string email, string password, CipherJourneyDBContext _context)
+        {
+            // Find the user by username
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
             if (user == null)
             {
                 return null;
