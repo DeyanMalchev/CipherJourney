@@ -27,9 +27,15 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav ms-auto me-2">
-                        <li class="navbar-nav">
-                            <a class="nav-link" asp-area="" asp-controller="SignUp" asp-action="SignUp">SignUp</a>
-                        </li>
+                        @if (!ViewContext.HttpContext.Request.Cookies.ContainsKey("Authenticated"))
+                        {
+                            
+                            <li class="navbar-nav">
+                                <a class="nav-link" asp-area="" asp-controller="SignUp" asp-action="SignUp">SignUp</a>
+                            </li>
+
+                        }
+
                         @if (!ViewContext.HttpContext.Request.Cookies.ContainsKey("Authenticated"))
                         {
                             <li class="navbar-nav" id="loginLink">

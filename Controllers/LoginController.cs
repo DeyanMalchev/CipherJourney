@@ -18,10 +18,15 @@ namespace CipherJourney.Controllers
             return View("Login");
         }
 
+        public IActionResult LoginSuccess() 
+        {
+            return View("LoginSuccess");
+        }
+
         public IActionResult Logout()
         {
             Response.Cookies.Delete("Authenticated");
-            return View("Login");
+            return RedirectToAction("Login");
         }
 
         public IActionResult LoginUser(LoginModel loginModel)
@@ -39,7 +44,7 @@ namespace CipherJourney.Controllers
                 }
 
                 Response.Cookies.Append("Authenticated", user.Id.ToString());
-                return View("LoginSuccess");
+                return RedirectToAction("LoginSuccess");
             }
             return View("Login", loginModel);
         }
