@@ -88,7 +88,7 @@ namespace CipherJourney.Services
 
         public static User? LoginEmail(string email, string password, CipherJourneyDBContext _context)
         {
-            // Find the user by username
+            // Find the user by Email
             var user = _context.Users.FirstOrDefault(u => u.Email == email);
             if (user == null)
             {
