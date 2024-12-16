@@ -68,10 +68,6 @@ dotnet run
 3. **Track Progress**:
    * Monitor scores and achievements on your profile page.
 
-## Screenshots
-![Alt text](https://assets.justinmind.com/wp-content/uploads/2024/07/signup-page-example-crm.png)
-![Alt text](https://cdn.dribbble.com/userupload/4060584/file/original-a2dcb88a24da79db509636a26cd98052.png?resize=400x300)
-
 ## Contributing
 We welcome contributions from the community! To contribute:
 1. Fork the repository.
