@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 
 namespace CipherJourney.Services
 {
@@ -72,31 +73,15 @@ namespace CipherJourney.Services
         public static User? Login(LoginModel loginModel, CipherJourneyDBContext _context)
         {
 
-            // Login user with USERNAME
-            if (loginModel is LoginUsernameModel usernameModel)
-            {
-                var user = _context.Users.FirstOrDefault(u => u.Username == usernameModel.Username);
-                if (user == null)
-                {
-                    return null;
-                }
-
-                // Hash the input password with the stored salt and compare
-                var hashedPassword = HashPassword(loginModel.Password, user.Salt);
-                if (hashedPassword == user.Password)
-                {
-                    if (user.IsEmailVerified == true)
-                    {
-                        return user;
-                    }
-                }
-                return null;
-            }
+            Regex emailRegex = new Regex(@"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|""(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|
+                             \\[\x01-\x09\x0b\x0c\x0e-\x7f])*"")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]
+                             |2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c
+                             \x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])");
 
             // Login user with EMAIL
-            if (loginModel is LoginEmailModel emailModel)
+            if (emailRegex.IsMatch(loginModel.Info))
             {
-                var user = _context.Users.FirstOrDefault(u => u.Username == emailModel.Email);
+                var user = _context.Users.FirstOrDefault(u => u.Email == loginModel.Info);
                 if (user == null)
                 {
                     return null;
@@ -113,8 +98,25 @@ namespace CipherJourney.Services
                 }
                 return null;
             }
+            else 
+            {
+                var user = _context.Users.FirstOrDefault(u => u.Username == loginModel.Info);
+                if (user == null)
+                {
+                    return null;
+                }
 
-            
+                // Hash the input password with the stored salt and compare
+                var hashedPassword = HashPassword(loginModel.Password, user.Salt);
+                if (hashedPassword == user.Password)
+                {
+                    if (user.IsEmailVerified == true)
+                    {
+                        return user;
+                    }
+                    return null;
+                }
+            }
             return null;
         }
     }
