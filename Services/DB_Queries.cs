@@ -32,8 +32,14 @@ namespace CipherJourney.Services
                 VerificationToken = verificationCode
             };
 
+            var newUserPoints = new UserPoints
+            {
+
+            };
+
             // Add the new user to the Users DbSet
             _context.Users.Add(newUser);
+            _context.UserPoints.Add(newUserPoints);
 
             // Save changes to the database
             _context.SaveChanges();
@@ -63,45 +69,52 @@ namespace CipherJourney.Services
                 numBytesRequested: 256 / 8));
         }
 
-        public static User? LoginUsername(string username, string password, CipherJourneyDBContext _context)
+        public static User? Login(LoginModel loginModel, CipherJourneyDBContext _context)
         {
-            // Find the user by username
-            var user = _context.Users.FirstOrDefault(u => u.Username == username);
-            if (user == null)
-            {
-                return null;
-            }
 
-            // Hash the input password with the stored salt and compare
-            var hashedPassword = HashPassword(password, user.Salt);
-            if (hashedPassword == user.Password)
+            // Login user with USERNAME
+            if (loginModel is LoginUsernameModel usernameModel)
             {
-                if (user.IsEmailVerified == true) 
-                { 
-                    return user;
+                var user = _context.Users.FirstOrDefault(u => u.Username == usernameModel.Username);
+                if (user == null)
+                {
+                    return null;
                 }
 
-            }
-
-            return null;
-        }
-
-        public static User? LoginEmail(string email, string password, CipherJourneyDBContext _context)
-        {
-            // Find the user by Email
-            var user = _context.Users.FirstOrDefault(u => u.Email == email);
-            if (user == null)
-            {
+                // Hash the input password with the stored salt and compare
+                var hashedPassword = HashPassword(loginModel.Password, user.Salt);
+                if (hashedPassword == user.Password)
+                {
+                    if (user.IsEmailVerified == true)
+                    {
+                        return user;
+                    }
+                }
                 return null;
             }
 
-            // Hash the input password with the stored salt and compare
-            var hashedPassword = HashPassword(password, user.Salt);
-            if (hashedPassword == user.Password)
+            // Login user with EMAIL
+            if (loginModel is LoginEmailModel emailModel)
             {
-                return user;
+                var user = _context.Users.FirstOrDefault(u => u.Username == emailModel.Email);
+                if (user == null)
+                {
+                    return null;
+                }
+
+                // Hash the input password with the stored salt and compare
+                var hashedPassword = HashPassword(loginModel.Password, user.Salt);
+                if (hashedPassword == user.Password)
+                {
+                    if (user.IsEmailVerified == true)
+                    {
+                        return user;
+                    }
+                }
+                return null;
             }
 
+            
             return null;
         }
     }

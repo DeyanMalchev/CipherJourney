@@ -34,7 +34,7 @@ namespace CipherJourney.Controllers
 
             if (ModelState.IsValid)
             {
-                User? user = DB_Queries.LoginUsername(loginModel.Username, loginModel.Password, _context);
+                User? user = DB_Queries.Login(loginModel, _context);
                 if (user == null)
                 {
 
