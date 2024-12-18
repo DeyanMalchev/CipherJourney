@@ -33,16 +33,20 @@ namespace CipherJourney.Services
                 VerificationToken = verificationCode
             };
 
+
+            // Add the new user to the Users 
+            _context.Users.Add(newUser);
+            _context.SaveChanges();
+
             var newUserPoints = new UserPoints
             {
-
+                UserId = newUser.Id,
+                Score = 0,
+                DailyAmountDone = 0,
+                WeeklyAmountDone = 0
             };
 
-            // Add the new user to the Users DbSet
-            _context.Users.Add(newUser);
             _context.UserPoints.Add(newUserPoints);
-
-            // Save changes to the database
             _context.SaveChanges();
         }
 
