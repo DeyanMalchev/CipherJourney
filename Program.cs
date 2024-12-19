@@ -42,7 +42,7 @@ namespace CipherJourney
 
             app.MapControllerRoute(
                 name: "Home",
-                pattern: "{controller=Home}/{action=HomePage}");
+                pattern: "{controller=Home}/{action=Home}");
 
             app.MapControllerRoute(
                 name: "Login",
@@ -51,7 +51,6 @@ namespace CipherJourney
             app.MapControllerRoute(
                 name: "About",
                 pattern: "{controller=About}/{action=About}");
-
 
             app.MapControllerRoute(
                 name: "SignUp",

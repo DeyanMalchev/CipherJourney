@@ -13,7 +13,7 @@ namespace CipherJourney.Controllers
             _logger = logger;
         }
 
-        public IActionResult HomePage()
+        public IActionResult Home()
         {
             if (Request.Cookies.TryGetValue("Authenticated", out string userIDString))
             {

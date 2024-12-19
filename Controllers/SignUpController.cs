@@ -38,7 +38,7 @@ namespace CipherJourney.Controllers
                     Email = signUpModel.Email
                 };
 
-                return View("..\\Email\\EmailVerification", emailVerificationModel);
+                return View("EmailVerification", emailVerificationModel);
             }
 
             // If ModelState is not valid, return the SignUp view with errors
