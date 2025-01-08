@@ -1,4 +1,5 @@
-﻿using CipherJourney.Models;
+﻿using Azure;
+using CipherJourney.Models;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
@@ -74,6 +75,7 @@ namespace CipherJourney.Services
                 numBytesRequested: 256 / 8));
         }
 
+
         public static User? Login(LoginModel loginModel, CipherJourneyDBContext _context)
         {
 
@@ -122,6 +124,17 @@ namespace CipherJourney.Services
                 }
             }
             return null;
+        }
+
+        public static UserPoints GetUserPoints(User user,CipherJourneyDBContext _context)
+        {
+            UserPoints userPoints = _context.UserPoints.FirstOrDefault(u => u.UserId == user.Id);
+
+            return userPoints;
+        }
+
+        public static void DeleteAccount()
+        {
         }
     }
 }
