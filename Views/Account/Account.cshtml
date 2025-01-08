@@ -1,0 +1,40 @@
+﻿
+@{
+    ViewData["Title"] = "CipherJourney";
+}
+
+<div class="container">
+    <h1>Account Details</h1>
+    <div class="card mb-4">
+        <div class="card-body">
+            @* <h5 class="card-title">Welcome, @Model.Username!</h5>
+            <p><strong>Email:</strong> @Model.Email</p> *@
+            @* 
+            <p><strong>Points:</strong> @Model.UserPoints.Score</p>
+            <p><strong>Account Created:</strong> @Model.CreatedDate.ToString("MMMM dd, yyyy")</p> *@
+
+            @* @if (!Model.IsEmailVerified)
+            {
+                <p class="text-danger">Your email is not verified. <a asp-action="ResendVerification" asp-controller="Account">Click here to resend the verification token</a>.</p>
+            } *@
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Actions</h3>
+            <form asp-action="ChangePassword" asp-controller="Account" method="post">
+                <button type="submit" class="btn btn-warning">Change Password</button>
+            </form>
+            <form asp-action="Logout" asp-controller="Account" method="post" class="mt-2">
+                <button type="submit" class="btn btn-secondary">Logout</button>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <h3>Danger Zone</h3>
+            <form asp-action="DeleteAccount" asp-controller="Account" method="post" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone!');">
+                <button type="submit" class="btn btn-danger">Delete Account</button>
+            </form>
+        </div>
+    </div>
+</div>
