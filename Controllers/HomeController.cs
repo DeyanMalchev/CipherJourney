@@ -15,7 +15,7 @@ namespace CipherJourney.Controllers
 
         public IActionResult Home()
         {
-            if (Request.Cookies.TryGetValue("Authenticated", out string userIDString))
+            if (Request.Cookies.TryGetValue("CipherJourney", out string userIDString))
             {
                 return View("HomePage");
             }

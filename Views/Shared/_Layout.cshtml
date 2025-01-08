@@ -28,7 +28,7 @@
                     </ul>
 
                     <ul class="navbar-nav ms-auto me-2">
-                        @if (!ViewContext.HttpContext.Request.Cookies.ContainsKey("Authenticated"))
+                        @if (!ViewContext.HttpContext.Request.Cookies.ContainsKey("CipherJourney"))
                         {
                             
                             <li class="navbar-nav">
@@ -37,7 +37,7 @@
 
                         }
 
-                        @if (!ViewContext.HttpContext.Request.Cookies.ContainsKey("Authenticated"))
+                        @if (!ViewContext.HttpContext.Request.Cookies.ContainsKey("CipherJourney"))
                         {
                             <li class="navbar-nav" id="loginLink">
                                 <a class="nav-link" asp-area="" asp-controller="Login" asp-action="Login">Login</a>

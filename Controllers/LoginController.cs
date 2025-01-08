@@ -25,7 +25,7 @@ namespace CipherJourney.Controllers
 
         public IActionResult Logout()
         {
-            Response.Cookies.Delete("Authenticated");
+            Response.Cookies.Delete("CipherJourney");
             return RedirectToAction("Login");
         }
 
@@ -43,7 +43,9 @@ namespace CipherJourney.Controllers
 
                 }
 
-                Response.Cookies.Append("Authenticated", user.Id.ToString());
+                UserPoints userPoints = DB_Queries.GetUserPoints(user, _context);
+
+                Cookies.CreateCookie(user, userPoints, Response);
                 return RedirectToAction("LoginSuccess");
             }
             return View("Login", loginModel);
