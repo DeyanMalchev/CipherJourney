@@ -128,7 +128,9 @@ namespace CipherJourney.Services
 
         public static UserPoints GetUserPoints(User user,CipherJourneyDBContext _context)
         {
-            UserPoints userPoints = _context.UserPoints.FirstOrDefault(u => u.UserId == user.Id);
+            UserPoints? userPoints = _context.UserPoints.FirstOrDefault(u => u.UserId == user.Id);
+
+            
 
             return userPoints;
         }
