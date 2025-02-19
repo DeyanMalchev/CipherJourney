@@ -2,7 +2,7 @@
 
 namespace CipherJourney.Models
 {
-    public class User
+    public class UserUnverified
     {
         public int Id { get; set; }
 
@@ -23,6 +23,7 @@ namespace CipherJourney.Models
         public byte[] Salt { get; set; }
         public string Password { get; set; }
 
+        // Email verification properties
         public bool IsEmailVerified { get; set; }
     }
 }
