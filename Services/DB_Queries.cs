@@ -20,7 +20,7 @@ namespace CipherJourney.Services
         }
 
 
-        public static void AddUser(SignUpModel model, CipherJourneyDBContext _context, string verificationCode)
+        public static void AddUser(SignUpModel model, CipherJourneyDBContext _context)
         {
 
             byte[] salt = GenerateSalt();
@@ -31,7 +31,6 @@ namespace CipherJourney.Services
                 Salt = salt,
                 Password = HashPassword(model.Password, salt),
                 IsEmailVerified = false,
-                VerificationToken = verificationCode
             };
 
 
@@ -39,16 +38,29 @@ namespace CipherJourney.Services
             _context.Users.Add(newUser);
             _context.SaveChanges();
 
-            var newUserPoints = new UserPoints
+            var newUserUnverified = new UsersUnverified
             {
-                UserId = newUser.Id,
-                Score = 0,
-                DailyAmountDone = 0,
-                WeeklyAmountDone = 0
+                UserID = newUser.Id,
+                DateOfCreation = DateTime.Now
             };
 
-            _context.UserPoints.Add(newUserPoints);
+            _context.UsersUnverified.Add(newUserUnverified);
             _context.SaveChanges();
+        }
+
+        public static void VerifyUserEmail(SignUpModel signUpModel, IEmailService _emailService, CipherJourneyDBContext _context) 
+        {
+
+            var user = _context.Users.FirstOrDefault(u => u.Username == signUpModel.Username);
+            var userUnverified = _context.UsersUnverified.FirstOrDefault(u => u.UserID == user.Id);
+
+            
+
+            userUnverified.VerificationToken = GenerateVerificationToken();
+            _context.SaveChanges();
+
+            _emailService.SendEmailAsync(signUpModel.Email, userUnverified.VerificationToken);
+
         }
 
         public static string GenerateVerificationToken()

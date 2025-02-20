@@ -29,9 +29,8 @@ namespace CipherJourney.Controllers
             {
                 DB_Queries.CheckIfUserExists(signUpModel, _context);
 
-                var verificationToken = DB_Queries.GenerateVerificationToken();
-                DB_Queries.AddUser(signUpModel, _context, verificationToken);
-                _emailService.SendEmailAsync(signUpModel.Email, verificationToken);
+                DB_Queries.AddUser(signUpModel, _context);
+                DB_Queries.VerifyUserEmail(signUpModel, _emailService, _context);
 
                 var emailVerificationModel = new EmailVerificationModel
                 {
@@ -49,18 +48,28 @@ namespace CipherJourney.Controllers
         {
             if (ModelState.IsValid)
             {
-                Console.WriteLine("model is valid");
 
                 var user = _context.Users.FirstOrDefault(u => u.Email == emailVerificationModel.Email);
                 if (user != null)
                 {
-                    Console.WriteLine("user found");
+                    var userUnverified = _context.UsersUnverified.FirstOrDefault(u => u.UserID == user.Id);
 
-                    if (user.VerificationToken.Equals(emailVerificationModel.InputToken))
+                    if (userUnverified.VerificationToken.Equals(emailVerificationModel.InputToken))
                     {
-                        Console.WriteLine("verification token matches");
-
                         user.IsEmailVerified = true;
+                        _context.UsersUnverified.Remove(userUnverified);
+                        _context.SaveChanges();
+
+                        var userPoints = new UserPoints 
+                        {
+                            UserId = user.Id,
+                            DailyScore = 0,
+                            WeeklyScore = 0,
+                            DailiesDone = 0,
+                            WeekliesDone = 0
+                        };
+
+                        _context.UserPoints.Add(userPoints);
                         _context.SaveChanges();
                         return View("SignUpSuccess"); // Redirect to a success page
                     }
