@@ -71,6 +71,17 @@ namespace CipherJourney.Controllers
 
                         _context.UserPoints.Add(userPoints);
                         _context.SaveChanges();
+
+                        var leaderboard = new LeaderboardModel 
+                        { 
+                            UserId = user.Id,
+                            Username = user.Username,
+                            TotalPoints = userPoints.DailyScore + userPoints.WeeklyScore
+                        };
+
+                        _context.Leaderboard.Add(leaderboard);
+                        _context.SaveChanges();
+
                         return View("SignUpSuccess"); // Redirect to a success page
                     }
                 }
