@@ -30,11 +30,13 @@ namespace CipherJourney.Controllers
                 DB_Queries.CheckIfUserExists(signUpModel, _context);
 
                 DB_Queries.AddUser(signUpModel, _context);
-                DB_Queries.VerifyUserEmail(signUpModel, _emailService, _context);
+
+                User user = _context.Users.FirstOrDefault(u => u.Email == signUpModel.Email);
+                DB_Queries.VerifyUserEmail(user, _emailService, _context);
 
                 var emailVerificationModel = new EmailVerificationModel
                 {
-                    Email = signUpModel.Email
+                    Email = user.Email
                 };
 
                 return View("../Email/EmailVerification", emailVerificationModel);
@@ -48,7 +50,6 @@ namespace CipherJourney.Controllers
         {
             if (ModelState.IsValid)
             {
-
                 var user = _context.Users.FirstOrDefault(u => u.Email == emailVerificationModel.Email);
                 if (user != null)
                 {
@@ -60,7 +61,7 @@ namespace CipherJourney.Controllers
                         _context.UsersUnverified.Remove(userUnverified);
                         _context.SaveChanges();
 
-                        var userPoints = new UserPoints 
+                        var userPoints = new UserPoints
                         {
                             UserId = user.Id,
                             DailyScore = 0,
@@ -72,8 +73,8 @@ namespace CipherJourney.Controllers
                         _context.UserPoints.Add(userPoints);
                         _context.SaveChanges();
 
-                        var leaderboard = new LeaderboardModel 
-                        { 
+                        var leaderboard = new LeaderboardModel
+                        {
                             UserId = user.Id,
                             Username = user.Username,
                             TotalPoints = userPoints.DailyScore + userPoints.WeeklyScore
@@ -82,19 +83,12 @@ namespace CipherJourney.Controllers
                         _context.Leaderboard.Add(leaderboard);
                         _context.SaveChanges();
 
-                        return View("SignUpSuccess"); // Redirect to a success page
+                        Cookies.CreateCookieAccount(user, userPoints, Response);
+
+                        return View("..\\Email\\VerificationSuccess"); // Redirect to a success page
                     }
                 }
-                else
-                {
-                    Console.WriteLine("user not found");
-                }
             }
-            else
-            {
-                Console.WriteLine("model is invalid");
-            }
-
             return View("..\\Email\\EmailVerification", emailVerificationModel);
         }
 

@@ -5,7 +5,7 @@ namespace CipherJourney.Services
 {
     public class Cookies
     {
-        public static void CreateCookie(User user, UserPoints userPoints , HttpResponse response)
+        public static void CreateCookieAccount(User user, UserPoints userPoints , HttpResponse response)
         {
             var cookieData = new Dictionary<string, string>
             {
@@ -13,9 +13,10 @@ namespace CipherJourney.Services
                 { "UserId", user.Id.ToString() },
                 { "Username", user.Username },
                 { "Email", user.Email },
-                { "Points", userPoints.Score.ToString()},
-                { "Daily", userPoints.DailyAmountDone.ToString()},
-                { "Weekly", userPoints.WeeklyAmountDone.ToString()}
+                { "DailyPoints", userPoints.DailyScore.ToString()},
+                { "WeeklyPoints", userPoints.WeeklyScore.ToString()},
+                { "Daily", userPoints.DailiesDone.ToString()},
+                { "Weekly", userPoints.WeekliesDone.ToString()},
             };
 
             string serializedData = JsonSerializer.Serialize(cookieData);

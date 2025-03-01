@@ -48,18 +48,20 @@ namespace CipherJourney.Services
             _context.SaveChanges();
         }
 
-        public static void VerifyUserEmail(SignUpModel signUpModel, IEmailService _emailService, CipherJourneyDBContext _context) 
+        public static void VerifyUserEmail(User user, IEmailService _emailService, CipherJourneyDBContext _context) 
         {
 
-            var user = _context.Users.FirstOrDefault(u => u.Username == signUpModel.Username);
-            var userUnverified = _context.UsersUnverified.FirstOrDefault(u => u.UserID == user.Id);
+            Regex emailRegex = new Regex(@"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|""(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|
+                             \\[\x01-\x09\x0b\x0c\x0e-\x7f])*"")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]
+                             |2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c
+                             \x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])");
 
-            
+            var userUnverified = _context.UsersUnverified.FirstOrDefault(u => u.UserID == user.Id);
 
             userUnverified.VerificationToken = GenerateVerificationToken();
             _context.SaveChanges();
 
-            _emailService.SendEmailAsync(signUpModel.Email, userUnverified.VerificationToken);
+            _emailService.SendEmailAsync(user.Email, userUnverified.VerificationToken);
 
         }
 
@@ -109,10 +111,7 @@ namespace CipherJourney.Services
                 var hashedPassword = HashPassword(loginModel.Password, user.Salt);
                 if (hashedPassword == user.Password)
                 {
-                    if (user.IsEmailVerified == true)
-                    {
-                        return user;
-                    }
+                    return user;
                 }
                 return null;
             }
@@ -128,11 +127,7 @@ namespace CipherJourney.Services
                 var hashedPassword = HashPassword(loginModel.Password, user.Salt);
                 if (hashedPassword == user.Password)
                 {
-                    if (user.IsEmailVerified == true)
-                    {
-                        return user;
-                    }
-                    return null;
+                    return user;
                 }
             }
             return null;
@@ -141,8 +136,6 @@ namespace CipherJourney.Services
         public static UserPoints GetUserPoints(User user,CipherJourneyDBContext _context)
         {
             UserPoints? userPoints = _context.UserPoints.FirstOrDefault(u => u.UserId == user.Id);
-
-            
 
             return userPoints;
         }

@@ -2,7 +2,7 @@
 
 namespace CipherJourney.Models
 {
-    public class SignUpModel
+    public class SignUpModel : IModel
     {
 
         [Required]

@@ -5,7 +5,9 @@
     ViewData["Title"] = "CipherJourney - Verification";
 }
 
-<h1 style="text-align: center;">An Email has been sent to: @Model.Email</h1>
+<h1 style="text-align: center">We need to verify you e-mail first!</h1>
+<h2 style="text-align: center">An e-mail has been sent to: @Model.Email</h2>
+<h2 style="text-align: center">It contains your verification code</h2>
 
 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 20px;">
     <form asp-controller="SignUp" asp-action="VerifyCode" method="post">
@@ -14,7 +16,7 @@
             <input asp-for="InputToken" class="form-control" type="text"
                    placeholder="Enter your code here..."
                    style="padding: 10px; width: 300px; margin-bottom: 10px;" />
-            <button type="submit" class="btn btn-primary">Verify</button>
+            <button style="" type="submit" class="btn btn-primary">Verify</button>
         </div>
     </form>
 </div>

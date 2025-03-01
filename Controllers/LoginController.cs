@@ -1,6 +1,7 @@
 ﻿using CipherJourney.Services;
 using CipherJourney.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace CipherJourney.Controllers
 {
@@ -8,9 +9,13 @@ namespace CipherJourney.Controllers
     {
 
         private readonly CipherJourneyDBContext _context;
-        public LoginController(CipherJourneyDBContext context)
+        private readonly Services.IEmailService _emailService;
+
+
+        public LoginController(CipherJourneyDBContext context, Services.IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public IActionResult Login()
@@ -18,10 +23,6 @@ namespace CipherJourney.Controllers
             return View("Login");
         }
 
-        public IActionResult LoginSuccess() 
-        {
-            return View("LoginSuccess");
-        }
 
         public IActionResult Logout()
         {
@@ -35,6 +36,7 @@ namespace CipherJourney.Controllers
             if (ModelState.IsValid)
             {
                 User? user = DB_Queries.Login(loginModel, _context);
+
                 if (user == null)
                 {
 
@@ -43,11 +45,26 @@ namespace CipherJourney.Controllers
 
                 }
 
-                UserPoints userPoints = DB_Queries.GetUserPoints(user, _context);
+                if (user.IsEmailVerified == false) 
+                {
 
-                Cookies.CreateCookie(user, userPoints, Response);
-                return RedirectToAction("LoginSuccess");
+                    DB_Queries.VerifyUserEmail(user, _emailService, _context);
+
+                    var emailVerificationModel = new EmailVerificationModel
+                    {
+                        Email = user.Email
+                    };
+
+                    return View("../Email/EmailVerification", emailVerificationModel);
+                }
+
+                UserPoints userPoints = DB_Queries.GetUserPoints(user, _context);
+                Cookies.CreateCookieAccount(user, userPoints, Response);
+
+                return RedirectToAction("Home", "Home");
             }
+
+            ModelState.AddModelError(string.Empty, "Invalid Username or Password. Are you sure you are signed up?");
             return View("Login", loginModel);
         }
     }
