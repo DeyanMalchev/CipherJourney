@@ -35,7 +35,7 @@ namespace CipherJourney.Services
             Console.WriteLine(serializedData);
         }
 
-        public static void SessionDaily(string cipher, string sentence, HttpResponse response)
+        public static void DailyModeCookie(string cipher, string sentence, HttpResponse response)
         {
             var cookieOptions = new CookieOptions
             {

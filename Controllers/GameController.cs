@@ -41,8 +41,8 @@ namespace CipherJourney.Controllers
 
         public string[] GenerateGameDaily()
         {
-            var values = DB_Queries.GenerateGameDaily(_context);
-            Cookies.SessionDaily(values[0], values[1], Response);
+            var values = DB_Queries.GetDailyModeConfiguration(_context);
+            Cookies.DailyModeCookie(values[0], values[1], Response);
 
             //values[1] = Ciphers.CeaserCipher(values[1], 3);
 

@@ -143,7 +143,7 @@ namespace CipherJourney.Services
         {
         }
 
-        public static string[] GenerateGameDaily(CipherJourneyDBContext _context)
+        public static string[] GetDailyModeConfiguration (CipherJourneyDBContext _context)
         {
             SentenceDailyModel sentenceDailyModel = _context.SentencesDaily.FirstOrDefault(u => u.Id == 1);
             string sentence = sentenceDailyModel.Sentence;
