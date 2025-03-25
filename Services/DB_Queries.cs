@@ -2,6 +2,7 @@
 using CipherJourney.Models;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
@@ -18,7 +19,6 @@ namespace CipherJourney.Services
                 throw new InvalidOperationException("Username or Email already exists.");
             }
         }
-
 
         public static void AddUser(SignUpModel model, CipherJourneyDBContext _context)
         {
@@ -89,7 +89,6 @@ namespace CipherJourney.Services
                 numBytesRequested: 256 / 8));
         }
 
-
         public static User? Login(LoginModel loginModel, CipherJourneyDBContext _context)
         {
 
@@ -142,6 +141,17 @@ namespace CipherJourney.Services
 
         public static void DeleteAccount()
         {
+        }
+
+        public static string[] GenerateGameDaily(CipherJourneyDBContext _context)
+        {
+            SentenceDailyModel sentenceDailyModel = _context.SentencesDaily.FirstOrDefault(u => u.Id == 1);
+            string sentence = sentenceDailyModel.Sentence;
+
+            CipherModel cipherModel = _context.Ciphers.FirstOrDefault(u => u.Id == 1);
+            string cipher = cipherModel.Cipher;
+
+            return [cipher, sentence];
         }
     }
 }

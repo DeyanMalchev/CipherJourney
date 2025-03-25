@@ -1,3 +1,80 @@
-﻿@{
-    ViewData["Title"] = "CipherJourney-Leaderboard";
+﻿@model string[]
+@{
+    ViewData["Title"] = "CipherJourney-Play";
 }
+
+
+<div class="container">
+
+    <div class="row">
+
+        <div class="col-md-7" style="border: solid 1.5px">
+            <h2 class="text-center">Let’s see what the sentence of the day is...</h2>
+            <div class="d-flex flex-wrap justify-content-center" id="cipheredSentence">
+                @for (int i = 0; i < Model.Length; i++)
+                {
+                    <div class="p-2 m-1 border rounded word-box">
+                        @Model[i]
+                    </div>
+                }
+            </div>
+            <form asp-controller="Game" asp-action="SubmitGuess" method="post">
+                <div class="d-flex flex-column align-items-center">
+                    <input type="text" class="form-control " id="guessInput" name="Guess" placeholder="Guess... (you can guess individual words)" />
+                    <button type="submit" class="btn btn-primary mt-2">submit</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-5" style="border: solid 1.5px">
+            <h2>Hints:</h2>
+            <ul>
+                @for (int i = 0; i <= 5; i++)
+                {
+                    <li>hint</li>
+                }
+            </ul>
+        </div>
+
+    </div>
+
+</div>
+
+
+@* 
+<div class="row">
+    <div class="col-md-6">
+        <div class="d-flex flex-wrap justify-content-center" id="cipheredSentence">
+            @for (int i = 0; i <= 5; i++)
+            {
+                <div class="p-2 m-1 border rounded word-box">
+                    sample
+                </div>
+            }
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="SubmitGuess" method="post">
+                <div class="">
+                    <input type="text" class="form-control " id="guessInput" name="Guess" placeholder="Guess... (you can guess individual words)" />
+                    <button type="submit" class="btn btn-primary mt-2">submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <div class="col-md-5" style="border-style: solid; border-width: 1.5px">
+            <div id="hintsSection">
+                <h4>Hints:</h4>
+                <ul>
+                    @for (int i = 0; i <= 5; i++)
+                    {
+                        <li>hint</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div> *@

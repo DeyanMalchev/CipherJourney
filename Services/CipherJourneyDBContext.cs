@@ -16,6 +16,6 @@ namespace CipherJourney.Services
         public DbSet<LeaderboardModel> Leaderboard { get; set; }
 
         public DbSet<CipherModel> Ciphers { get; set; }
-        public DbSet<SentenceDaily> SentencesDaily { get; set; }
+        public DbSet<SentenceDailyModel> SentencesDaily { get; set; }
     }
 }
