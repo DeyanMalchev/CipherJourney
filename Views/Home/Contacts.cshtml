@@ -1,4 +1,5 @@
-﻿@{
+﻿@model FeedbackModel
+@{
     ViewData["Title"] = "CipherJourney";
 }
 
@@ -6,19 +7,63 @@
     <h1>Contact Us</h1>
     <p>Feel free to reach out to us via the information below.</p>
 
-    <div style="margin-top: 30px;">
+    <div class="row" style="margin-top: 30px;">
+        <div class="col-md-7">
+            <h3>Email</h3>
+            <p><a href="mailto:support@cipherjourney.com">cipherjourneyhelp@gmail.com</a></p>
 
-        <h3>Email</h3>
-        <p><a href="mailto:support@cipherjourney.com">cipherjourneyhelp@gmail.com</a></p>
+            <h3>Phone</h3>
+            <p><a href="tel:+123456789">+359 896 096 777</a></p>
 
-        <h3>Phone</h3>
-        <p><a href="tel:+123456789">+359 896 096 777</a></p>
-
-        <h3>Follow Us</h3>
-        <div style="margin-top: 20px; justify-content: center">
-            <a href="https://instagram.com/" target="_blank" style="margin-right: 0px;">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" style="width: 30px; height: 30px;">
-            </a>
+            @*
+            <h3>Follow Us</h3>
+             <div style="margin-top: 20px; justify-content: center">
+                <a href="https://instagram.com/" target="_blank" style="margin-right: 0px;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" style="width: 30px; height: 30px;">
+                </a>
+            </div> *@
         </div>
+        <div class="col-md-5">
+            <form asp-controller="Home" asp-action="SendFeedback" method="post">
+                
+                @if (!ViewContext.HttpContext.Request.Cookies.ContainsKey("CipherJourney"))
+                {
+                    <div class="form-group">
+                        <label asp-for="Email" class="control-label">Provide us with your e-mail(it is not stored in any way)</label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                }
+                else
+                {
+                    <input type="hidden" asp-for="Email" value="@Model.Email" />
+                }
+            
+                <div class="mb-3">
+                    <label asp-for="Feedback" class="form-label">If you have any feedback, you can share it with us through here...</label>
+                    <input asp-for="Feedback" class="form-control" />
+                    <span asp-validation-for="Feedback" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Send feedback" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+        
     </div>
+
+    @if (TempData["FeedbackSuccess"] != null)
+    {
+        <div id="feedbackSuccess" class="alert alert-success" style="text-align: center;">
+            @TempData["FeedbackSuccess"]
+        </div>
+
+        <script>
+            setTimeout(() => {
+                document.getElementById('feedbackSuccess').style.display = 'none';
+            }, 5000);
+        </script>
+    }
+
 </div>
