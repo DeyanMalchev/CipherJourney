@@ -1,6 +1,8 @@
 ﻿using CipherJourney.Models;
 using Newtonsoft.Json;
+using System;
 using System.Text.Json;
+using TimeZoneConverter;
 
 namespace CipherJourney.Services
 {
@@ -37,6 +39,31 @@ namespace CipherJourney.Services
 
         public static void DailyModeCookie(string cipher, string sentence, HttpResponse response)
         {
+
+            DateTime utcNow = DateTime.UtcNow;
+
+            // Get the next 00:00 London time
+            TimeZoneInfo londonTimeZone = TZConvert.GetTimeZoneInfo("Europe/London");
+            DateTime londonNow = TimeZoneInfo.ConvertTimeFromUtc(utcNow, londonTimeZone);
+
+            // Calculate next midnight
+            DateTime nextMidnight = londonNow.Date.AddDays(1); // Moves to next day's 00:00
+
+            // Get the expiration time in UTC
+            DateTime expirationUtc = TimeZoneInfo.ConvertTimeToUtc(nextMidnight, londonTimeZone);
+
+            // Calculate expiration time span
+            TimeSpan timeUntilMidnight = expirationUtc - utcNow;
+
+            // Set the cookie with the calculated expiration time
+            context.Response.Cookies.Append("DailyMode", cookieValue, new CookieOptions
+            {
+                Expires = DateTime.UtcNow.Add(timeUntilMidnight),
+                HttpOnly = true,
+                Secure = true, // Set to true for HTTPS
+                SameSite = SameSiteMode.Strict
+            });
+
             var cookieOptions = new CookieOptions
             {
                 Expires = DateTime.UtcNow.Date.AddDays(1), // Expires at midnight UTC
