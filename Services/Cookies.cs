@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using TimeZoneConverter;
 
 namespace CipherJourney.Services
@@ -52,32 +53,38 @@ namespace CipherJourney.Services
             // Get the expiration time in UTC
             DateTime expirationUtc = TimeZoneInfo.ConvertTimeToUtc(nextMidnight, londonTimeZone);
 
-            // Calculate expiration time span
+            //Time until exparation
             TimeSpan timeUntilMidnight = expirationUtc - utcNow;
-
-            // Set the cookie with the calculated expiration time
-            context.Response.Cookies.Append("DailyMode", cookieValue, new CookieOptions
-            {
-                Expires = DateTime.UtcNow.Add(timeUntilMidnight),
-                HttpOnly = true,
-                Secure = true, // Set to true for HTTPS
-                SameSite = SameSiteMode.Strict
-            });
 
             var cookieOptions = new CookieOptions
             {
-                Expires = DateTime.UtcNow.Date.AddDays(1), // Expires at midnight UTC
+                Expires = DateTime.UtcNow.Add(timeUntilMidnight),
                 HttpOnly = true, // Prevents JavaScript access for security
                 Secure = true, // Enforces HTTPS
                 SameSite = SameSiteMode.Strict
             };
 
-            var cookieData = new Dictionary<string, string>
-            {
-                { "Cipher", cipher},
-                { "Sentence", sentence}
-            };
 
+            string[] words = Regex.Split(sentence, @"\W+").Where(w => w.Length > 0).ToArray();
+            Console.WriteLine(words);
+
+            
+
+            // Cipher each word separately
+            string[] cipheredWords = new string[words.Length];
+            Dictionary<string, bool> word_bool = new Dictionary<string, bool>();
+
+            for (int i = 0; i < words.Length; i++) {
+                cipheredWords[i] = Ciphers.CaesarCipher(words[i], 3);
+                word_bool.Add(cipheredWords[i], false);
+            }
+
+            var cookieData = new Dictionary<string, object>
+            {
+                { "Cipher", cipher },
+                { "Sentence", sentence },
+                { "Guesses", word_bool }
+            };
 
             string serializedData = JsonConvert.SerializeObject(cookieData);
 

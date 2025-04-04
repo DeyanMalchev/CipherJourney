@@ -5,36 +5,31 @@ namespace CipherJourney.Services
 {
     public class Ciphers
     {
-        public static string[] CeaserCipher(string text, int shift)
+        public static string CaesarCipher(string text, int shift)
         {
-            string[] sentence = Regex.Split(text, @"(\W)");
             StringBuilder result = new StringBuilder();
 
-            foreach (string word in sentence) 
-            { 
-                foreach (char ch in word)
+            foreach (char ch in text)
+            {
+                if (char.IsLetter(ch))
                 {
-                    if (char.IsLetter(ch))
-                    {
-                        char offset = char.IsUpper(ch) ? 'A' : 'a';
-                        result.Append((char)((ch - offset + shift) % 26 + offset));
-                    }
-                    else
-                    {
-                        result.Append(ch);
-                    }
+                    char offset = char.IsUpper(ch) ? 'A' : 'a';
+                    result.Append((char)((ch - offset + shift) % 26 + offset));
                 }
-
-                sentence[Array.IndexOf(sentence, result.ToString())] = result.ToString();
-                result.Clear();
+                else
+                {
+                    result.Append(ch);
+                }
             }
 
-            return sentence;
+            return result.ToString();
         }
 
-        public static string[] CeaserDecipher(string text, int shift)
+
+
+        public static string CaeserDecipher(string text, int shift)
         {
-            return CeaserCipher(text, 26 - shift); 
+            return CaesarCipher(text, 26 - shift); 
         }
     }
 }

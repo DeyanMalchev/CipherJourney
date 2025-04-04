@@ -1,4 +1,5 @@
-﻿@model string[]
+﻿@model Dictionary<string, bool>
+
 @{
     ViewData["Title"] = "CipherJourney-Play";
 }
@@ -11,19 +12,28 @@
         <div class="col-md-7" style="border: solid 1.5px">
             <h2 class="text-center">Let’s see what the sentence of the day is...</h2>
             <div class="d-flex flex-wrap justify-content-center" id="cipheredSentence">
-                @for (int i = 0; i < Model.Length; i++)
-                {
-                    <div class="p-2 m-1 border rounded word-box">
-                        @Model[i]
+                
+                <form id="guessForm">
+                    <div id="sentenceDisplay">
+                        @foreach (var word in Model)
+                        {
+                            if (word.Value == false)
+                            {
+                                <span class="word" data-word="@word">@word</span>
+                            }
+                            else {
+                                <span class="word" style="color: forestgreen" data-word="@word">@word</span>
+                            }
+                        }
                     </div>
-                }
+
+                    <input type="text" id="guessInput" placeholder="Enter your guess" />
+                    <button type="submit">Submit</button>
+                </form>
             </div>
-            <form asp-controller="Game" asp-action="SubmitGuess" method="post">
-                <div class="d-flex flex-column align-items-center">
-                    <input type="text" class="form-control " id="guessInput" name="Guess" placeholder="Guess... (you can guess individual words)" />
-                    <button type="submit" class="btn btn-primary mt-2">submit</button>
-                </div>
-            </form>
+
+            <div id="resultMessage"></div> <!-- Message area -->
+
         </div>
 
         <div class="col-md-5" style="border: solid 1.5px">
