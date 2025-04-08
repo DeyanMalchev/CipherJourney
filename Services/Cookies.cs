@@ -68,8 +68,6 @@ namespace CipherJourney.Services
             string[] words = Regex.Split(sentence, @"\W+").Where(w => w.Length > 0).ToArray();
             Console.WriteLine(words);
 
-            
-
             // Cipher each word separately
             string[] cipheredWords = new string[words.Length];
             Dictionary<string, bool> word_bool = new Dictionary<string, bool>();
@@ -83,7 +81,10 @@ namespace CipherJourney.Services
             {
                 { "Cipher", cipher },
                 { "Sentence", sentence },
-                { "Guesses", word_bool }
+                { "WordGuessedStatus", word_bool },
+                { "GuessCount", 0 },
+                { "CipherShift", 3 } 
+
             };
 
             string serializedData = JsonConvert.SerializeObject(cookieData);

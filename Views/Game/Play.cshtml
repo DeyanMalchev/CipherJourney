@@ -1,8 +1,54 @@
-﻿@model Dictionary<string, bool>
+﻿@model List<object> // Or a specific ViewModel class if you create one
 
 @{
     ViewData["Title"] = "CipherJourney-Play";
 }
+
+<style>
+    .word {
+        display: inline-block;
+        padding: 8px 12px;
+        margin: 5px;
+        border: 1.5px solid #ccc;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: 0;
+        background-color: #f9f9f9;
+        transition: all 0.2s ease;
+    }
+
+        .word.correct {
+            background-color: #86c24a;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+    #sentenceDisplay {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    #guessInput {
+        margin-right: 10px;
+        padding: 6px;
+    }
+
+    button[type="submit"] {
+        padding: 6px 12px;
+        font-weight: bold;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+    }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+</style>
 
 
 <div class="container">
@@ -12,24 +58,28 @@
         <div class="col-md-7" style="border: solid 1.5px">
             <h2 class="text-center">Let’s see what the sentence of the day is...</h2>
             <div class="d-flex flex-wrap justify-content-center" id="cipheredSentence">
-                
+
+                <div id="guessCounterDisplay" style="text-align: center; margin-top: 15px; font-size: 1.1em;">
+                    Guesses Made: <span id="guessCountValue">@ViewData["InitialGuessCount"]</span>
+                </div>
                 <form id="guessForm">
-                    <div id="sentenceDisplay">
-                        @foreach (var word in Model)
+                    <div id="sentenceDisplay" style="justify-content: center">
+                        @foreach (var item in Model) // Iterate through the list
                         {
-                            if (word.Value == false)
-                            {
-                                <span class="word" data-word="@word">@word</span>
-                            }
-                            else {
-                                <span class="word" style="color: forestgreen" data-word="@word">@word</span>
-                            }
+                            // Access properties directly
+                            var displayText = item.GetType().GetProperty("displayText").GetValue(item, null).ToString();
+                            var isGuessed = (bool)item.GetType().GetProperty("isGuessed").GetValue(item, null);
+                            var wordClass = isGuessed ? "word correct" : "word"; // Combine classes
+
+                            // Use cssClass variable below
+                            <span class="@wordClass">@displayText</span>
                         }
                     </div>
 
                     <input type="text" id="guessInput" placeholder="Enter your guess" />
                     <button type="submit">Submit</button>
                 </form>
+
             </div>
 
             <div id="resultMessage"></div> <!-- Message area -->
@@ -47,44 +97,75 @@
         </div>
 
     </div>
-
 </div>
 
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#guessForm").submit(function (e) {
+                e.preventDefault();
+                const guess = $("#guessInput").val().trim();
+                if (!guess) return;
 
-@* 
-<div class="row">
-    <div class="col-md-6">
-        <div class="d-flex flex-wrap justify-content-center" id="cipheredSentence">
-            @for (int i = 0; i <= 5; i++)
-            {
-                <div class="p-2 m-1 border rounded word-box">
-                    sample
-                </div>
-            }
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-            <form asp-action="SubmitGuess" method="post">
-                <div class="">
-                    <input type="text" class="form-control " id="guessInput" name="Guess" placeholder="Guess... (you can guess individual words)" />
-                    <button type="submit" class="btn btn-primary mt-2">submit</button>
-                </div>
-            </form>
-        </div>
-    </div>
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("CheckGuess", "Game")", // Use Url.Action
+                    data: { guess: guess },
+                    dataType: "json",
+                    // Inside the $.ajax success callback
 
-    <div>
-        <div class="col-md-5" style="border-style: solid; border-width: 1.5px">
-            <div id="hintsSection">
-                <h4>Hints:</h4>
-                <ul>
-                    @for (int i = 0; i <= 5; i++)
-                    {
-                        <li>hint</li>
+                    success: function (response) {
+                        if (response.error) {
+                            $("#resultMessage").text(response.error).css('color', 'red');
+                            return; // Stop if server reported an application error
+                        }
+
+                        if (response.success && response.sentenceDisplay) {
+                            const sentenceDisplayContainer = $("#sentenceDisplay");
+                            sentenceDisplayContainer.empty(); // Clear previous words
+
+                            response.sentenceDisplay.forEach(wordInfo => {
+                                const span = $("<span></span>");
+                                span.text(wordInfo.displayText);
+
+                                // Use consistent class names ('word' and 'correct' based on previous CSS)
+                                span.addClass("word"); // Base class
+
+                                if (wordInfo.isGuessed) {
+                                    span.addClass("correct"); // Guessed class
+                                }
+                                sentenceDisplayContainer.append(span);
+                            });
+
+                            $("#guessInput").val(""); // Clear input
+
+                            // --- ADD CODE TO UPDATE GUESS COUNT ---
+                            if (response.currentGuessCount !== undefined) { // Check if count was sent
+                                $("#guessCountValue").text(response.currentGuessCount);
+                            }
+                            // --- END ADD ---
+
+                            // --- REMOVED THE "Guess submitted!" line here ---
+
+                            // Check if all guessed logic
+                            const allGuessed = response.sentenceDisplay.every(item => item.isGuessed);
+                            if (allGuessed) {
+                                $("#resultMessage").text("Congratulations! You solved it!").css('color', 'blue');
+                                $("#guessInput").prop('disabled', true);
+                                $("#guessForm button[type='submit']").prop('disabled', true);
+                            }
+
+                        } else {
+                            // Handle case where success might be true but sentenceDisplay is missing?
+                            $("#resultMessage").text("Received invalid response structure from server.").css('color', 'orange');
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error("AJAX Error:", textStatus, errorThrown, jqXHR.responseText);
+                        $("#resultMessage").text("An error occurred. Please try again.").css('color', 'red');
                     }
-                </ul>
-            </div>
-        </div>
-    </div>
-</div> *@
+                });
+            });
+        });
+    </script>
+}
