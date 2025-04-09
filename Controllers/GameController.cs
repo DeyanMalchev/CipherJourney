@@ -258,6 +258,8 @@ namespace CipherJourney.Controllers
                 }
                 // Note: No need to initialize here typically, as GenerateGameDaily should have done it.
                 // If initialization IS needed, add the same logic as in CheckGuess.
+                bool isGameComplete = wordGuessedStatus.Count > 0 && wordGuessedStatus.Values.All(guessed => guessed);
+                ViewData["IsComplete"] = isGameComplete; // Pass flag to the view
 
                 // --- ADD CODE TO GET GUESS COUNT ---
                 long guessCount = 0; // Default if not found

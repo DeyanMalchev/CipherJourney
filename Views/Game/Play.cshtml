@@ -5,48 +5,87 @@
 }
 
 <style>
-    .word {
-        display: inline-block;
-        padding: 8px 12px;
-        margin: 5px;
-        border: 1.5px solid #ccc;
-        border-radius: 10px;
-        font-size: 18px;
-        font-weight: 0;
-        background-color: #f9f9f9;
-        transition: all 0.2s ease;
+    /* Target the form */
+    #guessForm {
+        /* This is the key property to center inline/inline-block children */
+        text-align: center;
+        /* Add some space above the form if desired */
+        margin-top: 20px;
+        /* Optional: If the form itself isn't wide enough,
+           you might need to make it wider or center the form block.
+           These are often NOT needed if a parent container handles width. */
+        /* width: 100%; */
+        /* max-width: 700px; /* Example max width */
+        /* margin-left: auto; */
+        /* margin-right: auto; */
     }
 
-        .word.correct {
-            background-color: #86c24a;
-            color: #155724;
-            border-color: #c3e6cb;
-        }
-
-    #sentenceDisplay {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        justify-content: center;
-        margin-bottom: 20px;
-    }
-
+    /* Ensure input behaves as inline-block to respect text-align */
     #guessInput {
+        display: inline-block;
+        vertical-align: middle; /* Helps align with the button */
+        /* KEEP all your existing styles like padding, margin-right, border etc. */
         margin-right: 10px;
         padding: 6px;
+        /* border: ...; */
+        /* font-size: ...; */
     }
 
-    button[type="submit"] {
+    /* Ensure button behaves as inline-block to respect text-align */
+    #guessForm button[type="submit"] {
+        display: inline-block;
+        vertical-align: middle; /* Helps align with the input */
+        /* KEEP all your existing styles like padding, font-weight, background-color, color, border, border-radius etc. */
         padding: 6px 12px;
         font-weight: bold;
         background-color: #007bff;
         color: white;
         border: none;
         border-radius: 6px;
+        /* cursor: pointer; */ /* Good practice for buttons */
     }
 
-        button[type="submit"]:hover {
+        /* Keep your button hover effect */
+        #guessForm button[type="submit"]:hover {
             background-color: #0056b3;
+        }
+
+    /* Keep your sentence display styles */
+    #sentenceDisplay {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px; /* Using gap is good */
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    /* Keep guess counter styles */
+    #guessCounterDisplay {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 1.1em;
+    }
+
+    /* Keep word box styles (.word / .word-box / .correct / .guessed) */
+    .word { /* Or .word-box */
+        /* ... your existing box styles ... */
+        display: inline-block; /* Keep this */
+        padding: 8px 12px;
+        margin: 0; /* Remove margin if using gap in parent */
+        border: 1.5px solid #ccc;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: 500;
+        background-color: #f9f9f9;
+        transition: all 0.2s ease;
+    }
+
+        .word.correct { /* Or .word-box.guessed */
+            /* ... your existing correct styles ... */
+            background-color: #90ee90;
+            color: #000000; /* Ensure black text */
+            border-color: #5cb85c;
+            font-weight: bold;
         }
 </style>
 
@@ -75,9 +114,16 @@
                             <span class="@wordClass">@displayText</span>
                         }
                     </div>
+                    @{
+                            // Helper variable to make the condition cleaner
+                        var disableInput = ViewData["IsComplete"] as bool? == true;
+                    }
 
-                    <input type="text" id="guessInput" placeholder="Enter your guess" />
-                    <button type="submit">Submit</button>
+                    <input type="text" id="guessInput"
+                           placeholder="Enter your guess"
+                           @(disableInput ? "disabled" : "") />  
+                    <button type="submit" @(disableInput ? "disabled" : "")> Submit </button>    
+                        
                 </form>
 
             </div>
@@ -151,8 +197,10 @@
                             const allGuessed = response.sentenceDisplay.every(item => item.isGuessed);
                             if (allGuessed) {
                                 $("#resultMessage").text("Congratulations! You solved it!").css('color', 'blue');
-                                $("#guessInput").prop('disabled', true);
-                                $("#guessForm button[type='submit']").prop('disabled', true);
+                                // ---- THIS IS THE KEY PART ----
+                                $("#guessInput").prop('disabled', true); // Disables input
+                                $("#guessForm button[type='submit']").prop('disabled', true); // Disables button
+                                // ---- END KEY PART ----
                             }
 
                         } else {
