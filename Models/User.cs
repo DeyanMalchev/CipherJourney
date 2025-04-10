@@ -18,9 +18,9 @@ namespace CipherJourney.Models
                              \x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])", ErrorMessage = "Invalid email format.")]
         public string Email { get; set; }
 
+        public byte[] Salt { get; set; }
         [Required]
         [MinLength(8, ErrorMessage = "Password must be at least 8 characters long.")]
-        public byte[] Salt { get; set; }
         public string Password { get; set; }
 
         public bool IsEmailVerified { get; set; }

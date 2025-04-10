@@ -2,7 +2,7 @@
 
 namespace CipherJourney.Models
 {
-    public class LeaderboardModel
+    public class Leaderboard
     {
         public int Id { get; set; }
 

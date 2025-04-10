@@ -56,6 +56,8 @@ namespace CipherJourney.Services
             //Time until exparation
             TimeSpan timeUntilMidnight = expirationUtc - utcNow;
 
+            TimeSpan one_minute = TimeSpan.Zero;
+
             var cookieOptions = new CookieOptions
             {
                 Expires = DateTime.UtcNow.Add(timeUntilMidnight),
