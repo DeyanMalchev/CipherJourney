@@ -1,4 +1,5 @@
-﻿
+﻿@model CipherJourney.Models.AccountModel
+
 @{
     ViewData["Title"] = "CipherJourney";
 }
@@ -7,18 +8,16 @@
     <h1>Account Details</h1>
     <div class="card mb-4">
         <div class="card-body">
-            @* <h5 class="card-title">Welcome, @Model.Username!</h5>
-            <p><strong>Email:</strong> @Model.Email</p> *@
-            @* 
-            <p><strong>Points:</strong> @Model.UserPoints.Score</p>
-            <p><strong>Account Created:</strong> @Model.CreatedDate.ToString("MMMM dd, yyyy")</p> *@
-
-            @* @if (!Model.IsEmailVerified)
-            {
-                <p class="text-danger">Your email is not verified. <a asp-action="ResendVerification" asp-controller="Account">Click here to resend the verification token</a>.</p>
-            } *@
+            <h5 class="card-title">Welcome, @Model.Username!</h5>
+            <p><strong>Email:</strong> @Model.Email</p>
+            <p><strong>Points: </strong> @Model.DailyPoints</p>
+            @* <p><strong>Daily Points:</strong> @Model.DailyPoints</p> *@
+            @* <p><strong>Weekly Points:</strong> @Model.WeeklyPoints</p> *@
+            <p><strong>Dailies Completed:</strong> @Model.DailiesDone</p>
+            @* <p><strong>Weeklies Completed:</strong> @Model.WeekliesDone< /p> *@
         </div>
     </div>
+
 
     <div class="row">
         <div class="col-md-6">
@@ -38,3 +37,15 @@
         </div>
     </div>
 </div>
+@if (TempData["PassChangeSuccess"] != null)
+{
+    <div id="feedbackSuccess" class="alert alert-success" style="text-align: center;">
+        @TempData["PassChangeSuccess"]
+    </div>
+
+    <script>
+        setTimeout(() => {
+            document.getElementById('feedbackSuccess').style.display = 'none';
+        }, 5000);
+    </script>
+}

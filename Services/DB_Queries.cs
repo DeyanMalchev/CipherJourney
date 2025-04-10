@@ -12,12 +12,9 @@ namespace CipherJourney.Services
     {
 
         // Check if the user exists on signUp
-        public static void CheckIfUserExists(SignUpModel model, CipherJourneyDBContext _context)
+        public static User GetExistingUser(SignUpModel model, CipherJourneyDBContext _context)
         {
-            if (_context.Users.Any(u => u.Username == model.Username || u.Email == model.Email))
-            {
-                throw new InvalidOperationException("Username or Email already exists.");
-            }
+            return _context.Users.FirstOrDefault(u => u.Username == model.Username || u.Email == model.Email);
         }
 
         public static void AddUser(SignUpModel model, CipherJourneyDBContext _context)
@@ -73,13 +70,13 @@ namespace CipherJourney.Services
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        private static byte[] GenerateSalt()
+        public static byte[] GenerateSalt()
         {
             byte[] salt = RandomNumberGenerator.GetBytes(128 / 8); // divide by 8 to convert bits to bytes
             return salt;
         }
 
-        private static string HashPassword(string password, byte[] salt)
+        public static string HashPassword(string password, byte[] salt)
         {
             return Convert.ToBase64String(KeyDerivation.Pbkdf2(
                 password: password!,

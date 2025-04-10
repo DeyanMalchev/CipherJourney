@@ -27,7 +27,14 @@ namespace CipherJourney.Controllers
         {
             if (ModelState.IsValid)
             {
-                DB_Queries.CheckIfUserExists(signUpModel, _context);
+                var existingUser = DB_Queries.GetExistingUser(signUpModel, _context);
+                if (existingUser != null)
+                {
+                    if (existingUser.Username == existingUser.Username)
+                        throw new InvalidOperationException("Username already exists.");
+                    if (existingUser.Email == existingUser.Email)
+                        throw new InvalidOperationException("Email already exists.");
+                }
 
                 DB_Queries.AddUser(signUpModel, _context);
 
@@ -73,7 +80,7 @@ namespace CipherJourney.Controllers
                         _context.UserPoints.Add(userPoints);
                         _context.SaveChanges();
 
-                        var leaderboard = new LeaderboardModel
+                        var leaderboard = new Leaderboard
                         {
                             UserId = user.Id,
                             Username = user.Username,
