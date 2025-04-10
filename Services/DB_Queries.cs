@@ -136,8 +136,10 @@ namespace CipherJourney.Services
             return userPoints;
         }
 
-        public static void DeleteAccount()
+        public static void DeleteAccount(User user, CipherJourneyDBContext _context)
         {
+            _context.Users.Remove(user);
+            _context.SaveChanges();
         }
 
         public static string[] GetDailyModeConfiguration (CipherJourneyDBContext _context)

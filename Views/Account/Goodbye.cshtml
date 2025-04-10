@@ -1,0 +1,51 @@
+﻿@{
+    ViewData["Title"] = "Account Deleted";
+    // This view typically doesn't need a specific model unless you want to pass
+    // something minimal like the username, but it's often shown after logout.
+}
+
+@* Use Bootstrap container and grid for layout and centering *@
+<div class="container py-5 mt-5">
+    @* Added margin-top for vertical spacing *@
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+
+            <div class="card shadow-sm text-center">
+                @* Center align text within the card *@
+                <div class="card-body p-4 p-md-5">
+                    @* Added more padding *@
+
+                    @* Optional Success Icon (Requires Bootstrap Icons) *@
+                    <div>
+                        <i class="bi bi-emoji-smile text-primary display-3 mb-3"></i>
+                        @* Alternative icons: bi-check-circle-fill text-success, bi-balloon-heart text-info *@
+                    </div>
+
+                    <h2 class="card-title h3 mb-3">Account Deleted</h2>
+
+                    <p class="lead mb-4">
+                        Your CipherJourney account has been successfully removed.
+                    </p>
+
+                    <p class="text-muted fs-5">
+                        Goodbye! We're sad to see you go, but we hope to see you again soon.
+                    </p>
+
+                    <hr class="my-4">
+
+                    <p class="mb-0">You can return to the main page.</p>
+                    <a asp-controller="Home" asp-action="Home" class="btn btn-outline-primary mt-2">
+                        Return to Home Page
+                    </a>
+                    @* Or provide a link to the login page if more appropriate *
+                    <a asp-controller="Login" asp-action="Login" class="btn btn-outline-secondary mt-2">
+                    Go to Login Page
+                    </a>
+                    *@
+
+                </div> @* End card-body *@
+            </div> @* End card *@
+
+        </div> @* End column *@
+    </div> @* End row *@
+</div> @* End container *@

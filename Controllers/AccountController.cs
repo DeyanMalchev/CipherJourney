@@ -88,5 +88,37 @@ namespace CipherJourney.Controllers
             return RedirectToAction("Login", "Login");
         }
 
+        public IActionResult DeleteAccount(DeleteAccountModel model) 
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var cookie = Request.Cookies["CipherJourney"];
+            var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(cookie);
+            var userId = int.Parse(data["UserId"]);
+
+            SignUpModel signUpModel = new SignUpModel
+            {
+                Email = data["Email"],
+                Username = data["Username"],
+            };
+
+            var user = DB_Queries.GetExistingUser(signUpModel, _context);
+
+            var currentHashed = DB_Queries.HashPassword(model.Password, user.Salt);
+            if (user.Password != currentHashed)
+            {
+                ModelState.AddModelError("", "Incorrect Password!.");
+                return View(model);
+            }
+
+            DB_Queries.DeleteAccount(user, _context);
+            Response.Cookies.Delete("CipherJourney");
+            Response.Cookies.Delete("DailyMode");
+            return View("Goodbye"); 
+        }
+
     }
 }

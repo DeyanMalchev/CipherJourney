@@ -1,0 +1,77 @@
+﻿@model DeleteAccountModel
+@{
+    ViewData["Title"] = "CipherJourney - Delete Account Confirmation";
+}
+
+@* Use Bootstrap container and grid for layout and centering *@
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            @* Adjusted width slightly *@
+
+            <div class="card border-danger shadow">
+                @* Use border-danger for emphasis *@
+                <div class="card-header bg-danger text-white">
+                    <h2 class="card-title text-center mb-0 fs-4">Account Deletion Confirmation</h2>
+                </div>
+                <div class="card-body p-4">
+
+                    <div class="alert alert-warning" role="alert">
+                        <h4 class="alert-heading"><i class="bi bi-exclamation-triangle-fill"></i> Important!</h4>
+                        <p>Please review the following information carefully before proceeding. This action is irreversible.</p>
+                    </div>
+
+                    <p><strong>By submitting this form, you acknowledge and agree to the following:</strong></p>
+                    <ol class="mb-3">
+                        <li>
+                            Deleting your account will permanently remove:
+                            <ul>
+                                <li>All your game progress, including points, achievements, and records.</li>
+                                <li>Any personal data associated with your account, such as your email address and username.</li>
+                                <li>Any saved settings or preferences in the app.</li>
+                            </ul>
+                        </li>
+                        <li>This action is <strong>irreversible</strong>, and we will not be able to recover your data once the account is deleted.</li>
+                        <li>If you have any concerns or questions before proceeding, please contact us at support@cipherjourney.com.</li>
+                    </ol>
+
+                    <hr class="my-4">
+
+                    <form asp-action="DeleteAccount" method="post">
+                        @* Make sure asp-action points to your DeleteAccount POST method *@
+                        @* Optional: Display model-level errors if needed
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        *@
+
+                        @* Form Group for Password Confirmation *@
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">Confirm Current Password</label>
+                            <input asp-for="Password" class="form-control" type="password" placeholder="Enter your password to confirm" />
+                            <span asp-validation-for="Password" class="text-danger small"></span> @* Bootstrap validation text styling *@
+                        </div>
+
+                        @* Form Group for Consent Checkbox *@
+                        <div class="form-check mb-3">
+                            <input asp-for="ConfirmConsent" type="checkbox" class="form-check-input" />
+                            <label asp-for="ConfirmConsent" class="form-check-label">
+                                I have read the information above, understand the consequences, and confirm I want to permanently delete my account.
+                            </label>
+                            <span asp-validation-for="ConfirmConsent" class="text-danger small d-block"></span> @* Added d-block to ensure it appears below *@
+                        </div>
+
+
+                        @* Button - Using d-grid for better full-width button spacing *@
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                @* Use btn-danger for the delete action *@
+                                <i class="bi bi-trash-fill"></i> Delete My Account Permanently
+                            </button>
+                        </div>
+                    </form>
+
+                </div> @* End card-body *@
+            </div> @* End card *@
+
+        </div> @* End column *@
+    </div> @* End row *@
+</div> @* End container *@
