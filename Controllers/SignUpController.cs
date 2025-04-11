@@ -64,31 +64,7 @@ namespace CipherJourney.Controllers
 
                     if (userUnverified.VerificationToken.Equals(emailVerificationModel.InputToken))
                     {
-                        user.IsEmailVerified = true;
-                        _context.UsersUnverified.Remove(userUnverified);
-                        _context.SaveChanges();
-
-                        var userPoints = new UserPoints
-                        {
-                            UserId = user.Id,
-                            DailyScore = 0,
-                            WeeklyScore = 0,
-                            DailiesDone = 0,
-                            WeekliesDone = 0
-                        };
-
-                        _context.UserPoints.Add(userPoints);
-                        _context.SaveChanges();
-
-                        var leaderboard = new Leaderboard
-                        {
-                            UserId = user.Id,
-                            Username = user.Username,
-                            TotalPoints = userPoints.DailyScore + userPoints.WeeklyScore
-                        };
-
-                        _context.Leaderboard.Add(leaderboard);
-                        _context.SaveChanges();
+                        var userPoints = DB_Queries.ConfigureTablesAfterVerification(user, userUnverified, _context);
 
                         Cookies.CreateCookieAccount(user, userPoints, Response);
 

@@ -45,6 +45,37 @@ namespace CipherJourney.Services
             _context.SaveChanges();
         }
 
+        public static UserPoints ConfigureTablesAfterVerification(User user, UsersUnverified userUnverified, CipherJourneyDBContext _context) 
+        {
+            user.IsEmailVerified = true;
+            _context.UsersUnverified.Remove(userUnverified);
+            _context.SaveChanges();
+
+            var userPoints = new UserPoints
+            {
+                UserId = user.Id,
+                DailyScore = 0,
+                WeeklyScore = 0,
+                DailiesDone = 0,
+                WeekliesDone = 0
+            };
+
+            _context.UserPoints.Add(userPoints);
+            _context.SaveChanges();
+
+            var leaderboard = new Leaderboard
+            {
+                UserId = user.Id,
+                Username = user.Username,
+                TotalPoints = userPoints.DailyScore + userPoints.WeeklyScore
+            };
+
+            _context.Leaderboard.Add(leaderboard);
+            _context.SaveChanges();
+
+            return userPoints;
+        }
+
         public static void VerifyUserEmail(User user, IEmailService _emailService, CipherJourneyDBContext _context) 
         {
 
