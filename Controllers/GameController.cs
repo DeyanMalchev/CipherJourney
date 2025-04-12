@@ -24,40 +24,24 @@ namespace CipherJourney.Controllers
         // Encapsulates the logic to create the display list from the state
         private List<object> BuildSentenceDisplayData(string originalSentence, int cipherShift, Dictionary<string, bool> wordStatus)
         {
-            var displayData = new List<object>(); // Initialize the list to hold display info
+            var displayData = new List<object>();
+            if (string.IsNullOrEmpty(originalSentence) || wordStatus == null) return displayData;
 
-            // Split sentence into parts, keeping words and delimiters, removing empty parts
             var sentenceParts = Regex.Split(originalSentence, @"(\b[\w']+\b)")
-                                     .Where(p => !string.IsNullOrEmpty(p))
-                                     .ToList();
-
+                                      .Where(p => !string.IsNullOrEmpty(p))
+                                      .ToList();
             foreach (string part in sentenceParts)
             {
-                // Check if the current part is a word using Regex
                 bool isActualWord = Regex.IsMatch(part, @"\b[\w']+\b");
-
-                // --- CHANGE HERE ---
-                // ONLY process the part if it IS an actual word
                 if (isActualWord)
                 {
-                    // It's a word. Check if it's guessed (case-insensitive lookup)
                     bool isGuessed = wordStatus.TryGetValue(part, out bool status) && status;
-
-                    // Determine the text: original if guessed, ciphered otherwise
-                    string displayText = isGuessed ? part : Ciphers.CaesarCipher(part, cipherShift); // Assuming Ciphers class exists
-
-                    // Add the word's display info to our list
+                    string displayText = isGuessed ? part : Ciphers.CaesarCipher(part, cipherShift);
                     displayData.Add(new { displayText, isGuessed });
                 }
-                // ELSE: If the part is NOT a word (it's space or punctuation),
-                //       do nothing. Skip it and don't add it to displayData.
-                // --- END CHANGE ---
             }
-
-            // Return the list containing ONLY word display information
             return displayData;
         }
-
 
         [HttpPost]
         // [ValidateAntiForgeryToken]
@@ -93,32 +77,28 @@ namespace CipherJourney.Controllers
                 }
 
                 // --- 2. Load or Initialize WordGuessedStatus Dictionary (with CORRECT Comparer) ---
-                var wordGuessedStatus = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase); // Ensure comparer
+                var wordGuessedStatus = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 
                 if (gameState.TryGetValue("WordGuessedStatus", out object statusObj) && statusObj is JObject statusJObject)
                 {
-                    // Deserialize into a temporary standard dictionary first
                     var tempDict = statusJObject.ToObject<Dictionary<string, bool>>();
                     if (tempDict != null)
                     {
-                        // Create the final dictionary with the correct comparer, copying items
                         wordGuessedStatus = new Dictionary<string, bool>(tempDict, StringComparer.OrdinalIgnoreCase);
                     }
-                    // If tempDict is null, wordGuessedStatus remains empty with the correct comparer
                 }
 
                 // Initialize if empty (either not found in cookie or failed deserialization)
                 if (wordGuessedStatus.Count == 0 && !string.IsNullOrEmpty(originalSentence))
                 {
-                    Console.WriteLine("Initializing WordGuessedStatus dictionary..."); // Log initialization
+                    Console.WriteLine("Initializing WordGuessedStatus dictionary...");
                     var uniqueWords = Regex.Matches(originalSentence, @"\b[\w']+\b")
-                                           .Cast<Match>()
-                                           .Select(m => m.Value)
-                                           .Distinct(StringComparer.OrdinalIgnoreCase);
+                                                .Cast<Match>()
+                                                .Select(m => m.Value)
+                                                .Distinct(StringComparer.OrdinalIgnoreCase);
 
                     foreach (var word in uniqueWords)
                     {
-                        // Use original casing from sentence for the key, comparer handles lookup
                         string originalCasingWord = Regex.Match(originalSentence, $@"\b{Regex.Escape(word)}\b", RegexOptions.IgnoreCase).Value;
                         if (!wordGuessedStatus.ContainsKey(originalCasingWord))
                         {
@@ -142,16 +122,13 @@ namespace CipherJourney.Controllers
                     guessCount++;
                     foreach (string guessedWord in userGuessWords)
                     {
-                        // Check and update using the case-insensitive dictionary
                         if (wordGuessedStatus.TryGetValue(guessedWord, out bool currentStatus) && !currentStatus)
                         {
-                            // Need to find the original key casing to update the dictionary
-                            // Find the key in the dictionary that matches the guess case-insensitively
                             string actualKey = wordGuessedStatus.Keys.FirstOrDefault(k => k.Equals(guessedWord, StringComparison.OrdinalIgnoreCase));
                             if (actualKey != null)
                             {
-                                wordGuessedStatus[actualKey] = true; // Update using the actual key from the dictionary
-                                Console.WriteLine($"Marked '{actualKey}' as guessed."); // Log successful guess update
+                                wordGuessedStatus[actualKey] = true;
+                                Console.WriteLine($"Marked '{actualKey}' as guessed.");
                             }
                         }
                     }
@@ -160,48 +137,23 @@ namespace CipherJourney.Controllers
                 // --- 4. Prepare the JSON Response Data using Helper Method ---
                 var sentenceDisplayData = BuildSentenceDisplayData(originalSentence, cipherShift, wordGuessedStatus);
 
-                // --- 5. Update the Cookie ---
+                // --- 5. Update the Cookie (using the Cookies class method) ---
                 string cipher = gameState.TryGetValue("Cipher", out object cipherObj) ? cipherObj.ToString() : "Caesar"; // Get cipher name
 
-                var updatedCookieData = new Dictionary<string, object>
-                {
-                    { "Cipher", cipher },
-                    { "Sentence", originalSentence },
-                    { "WordGuessedStatus", wordGuessedStatus }, // Save the updated dictionary
-                    { "GuessCount", guessCount },
-                    { "CipherShift", cipherShift }
-                };
-
-                // (Cookie expiry logic remains the same - looks fine)
-                DateTime utcNow = DateTime.UtcNow;
-                TimeZoneInfo londonTimeZone = TZConvert.GetTimeZoneInfo("Europe/London");
-                DateTime londonNow = TimeZoneInfo.ConvertTimeFromUtc(utcNow, londonTimeZone);
-                DateTime nextMidnight = londonNow.Date.AddDays(1);
-                DateTime expirationUtc = TimeZoneInfo.ConvertTimeToUtc(nextMidnight, londonTimeZone);
-                TimeSpan timeUntilMidnight = expirationUtc - utcNow;
-
-                var cookieOptions = new CookieOptions
-                {
-                    Expires = DateTime.UtcNow.Add(timeUntilMidnight), // Use calculated expiry
-                    HttpOnly = true,
-                    Secure = Request.IsHttps, // Use Request.IsHttps dynamically
-                    SameSite = SameSiteMode.Strict
-                };
-
-                string updatedJson = JsonConvert.SerializeObject(updatedCookieData);
-                Response.Cookies.Append("DailyMode", updatedJson, cookieOptions);
+                // Call the Cookies class method to handle the cookie update
+                Cookies.SetDailyModeCookie(cipher, originalSentence, wordGuessedStatus, guessCount, cipherShift, Response, Request);
 
                 // --- 6. Return JSON ---
                 return Json(new
                 {
-                    success = true, // Indicate the operation succeeded
-                    sentenceDisplay = sentenceDisplayData, // Send the prepared display data
-                    currentGuessCount = guessCount // **** ADD THIS LINE ****
+                    success = true,
+                    sentenceDisplay = sentenceDisplayData,
+                    currentGuessCount = guessCount
                 });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in CheckGuess: {ex.ToString()}"); // Log full exception
+                Console.WriteLine($"Error in CheckGuess: {ex.ToString()}");
                 return Json(new { error = "An unexpected server error occurred processing your guess." });
             }
         }
@@ -219,9 +171,8 @@ namespace CipherJourney.Controllers
             if (!Request.Cookies.TryGetValue("DailyMode", out string cookieValue) || string.IsNullOrEmpty(cookieValue))
             {
                 Console.WriteLine("DailyMode cookie not found or empty. Generating new game.");
-                // You might want GenerateGameDaily to return void and just set the cookie
-                GenerateGameDaily(); // Sets the cookie internally
-                // Redirect to Play again to load the newly set cookie
+                // Use the Cookies class method here
+                GenerateGameDaily();
                 return RedirectToAction("Play");
             }
 
@@ -232,10 +183,10 @@ namespace CipherJourney.Controllers
 
                 if (!gameState.TryGetValue("Sentence", out object sentenceObj) || sentenceObj == null)
                 {
-                    // Handle corrupted state - maybe clear cookie and start again?
+                    // Handle corrupted state
                     Console.WriteLine("Original sentence missing from game state cookie in Play action.");
-                    Response.Cookies.Delete("DailyMode"); // Clear bad cookie
-                    return RedirectToAction("Play"); // Try again (will regenerate)
+                    Response.Cookies.Delete("DailyMode");
+                    return RedirectToAction("Play");
                 }
                 string originalSentence = sentenceObj.ToString();
                 Console.Write(originalSentence);
@@ -246,7 +197,6 @@ namespace CipherJourney.Controllers
                     cipherShift = loadedShift;
                 }
 
-                // Load the dictionary with the correct comparer
                 var wordGuessedStatus = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
                 if (gameState.TryGetValue("WordGuessedStatus", out object statusObj) && statusObj is JObject statusJObject)
                 {
@@ -259,7 +209,7 @@ namespace CipherJourney.Controllers
                 // Note: No need to initialize here typically, as GenerateGameDaily should have done it.
                 // If initialization IS needed, add the same logic as in CheckGuess.
                 bool isGameComplete = wordGuessedStatus.Count > 0 && wordGuessedStatus.Values.All(guessed => guessed);
-                ViewData["IsComplete"] = isGameComplete; // Pass flag to the view
+                ViewData["IsComplete"] = isGameComplete;
 
                 // --- ADD CODE TO GET GUESS COUNT ---
                 long guessCount = 0; // Default if not found
@@ -269,23 +219,24 @@ namespace CipherJourney.Controllers
                 }
                 // Pass the count to the View using ViewData
                 ViewData["InitialGuessCount"] = guessCount;
+
                 // --- Build the Model for the View using the Helper ---
                 var displayModel = BuildSentenceDisplayData(originalSentence, cipherShift, wordGuessedStatus);
 
-                Console.WriteLine($"Passing display model with {displayModel.Count} items to Play view."); // Log model info
-                return View(displayModel); // Pass the List<object> to the view
+                Console.WriteLine($"Passing display model with {displayModel.Count} items to Play view.");
+                return View(displayModel);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error loading Play view state: {ex.ToString()}");
-                // Handle error - maybe clear cookie and retry?
+                // Handle error
                 Response.Cookies.Delete("DailyMode");
-                return RedirectToAction("Play"); // Or show an error view
+                return RedirectToAction("Play");
             }
         }
 
         // Ensure this method sets the cookie correctly, including an initialized WordGuessedStatus
-        public void GenerateGameDaily() // Changed to void as it modifies Response directly
+        public void GenerateGameDaily()
         {
             // Assuming GetDailyModeConfiguration returns sentence and cipher details
             // Let's simulate getting values
@@ -296,9 +247,9 @@ namespace CipherJourney.Controllers
             // Initialize the guessed status dictionary - all false initially
             var initialWordStatus = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
             var uniqueWords = Regex.Matches(sentence, @"\b[\w']+\b")
-                                      .Cast<Match>()
-                                      .Select(m => m.Value)
-                                      .Distinct(StringComparer.OrdinalIgnoreCase);
+                                        .Cast<Match>()
+                                        .Select(m => m.Value)
+                                        .Distinct(StringComparer.OrdinalIgnoreCase);
             foreach (var word in uniqueWords)
             {
                 string originalCasingWord = Regex.Match(sentence, $@"\b{Regex.Escape(word)}\b", RegexOptions.IgnoreCase).Value;
@@ -308,34 +259,8 @@ namespace CipherJourney.Controllers
                 }
             }
 
-            // Create the cookie data
-            var cookieData = new Dictionary<string, object> {
-                { "Cipher", cipherType },
-                { "Sentence", sentence },
-                { "WordGuessedStatus", initialWordStatus },
-                { "GuessCount", 0L }, // Start with 0 guesses
-                { "CipherShift", shift }
-             };
-
-            // Calculate expiry (same logic as in CheckGuess)
-            DateTime utcNow = DateTime.UtcNow;
-            TimeZoneInfo londonTimeZone = TZConvert.GetTimeZoneInfo("Europe/London");
-            DateTime londonNow = TimeZoneInfo.ConvertTimeFromUtc(utcNow, londonTimeZone);
-            DateTime nextMidnight = londonNow.Date.AddDays(1);
-            DateTime expirationUtc = TimeZoneInfo.ConvertTimeToUtc(nextMidnight, londonTimeZone);
-            TimeSpan timeUntilMidnight = expirationUtc - utcNow;
-
-            var cookieOptions = new CookieOptions
-            {
-                Expires = DateTime.UtcNow.Add(timeUntilMidnight),
-                HttpOnly = true,
-                Secure = Request.IsHttps, // Use Request.IsHttps
-                SameSite = SameSiteMode.Strict
-            };
-
-            string jsonValue = JsonConvert.SerializeObject(cookieData);
-            Response.Cookies.Append("DailyMode", jsonValue, cookieOptions);
-            Console.WriteLine("Generated new DailyMode cookie.");
+            // Use the Cookies class method to create the cookie
+            Cookies.SetDailyModeCookie(cipherType, sentence, initialWordStatus, 0, shift, Response, Request);
         }
     }
 }

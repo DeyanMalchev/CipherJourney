@@ -25,9 +25,8 @@ namespace CipherJourney.Services
                 { "UserId", user.Id.ToString() },
                 { "Username", user.Username },
                 { "Email", user.Email },
-                { "Daily", userPoints.RiddlesSolved.ToString()},
-                { "DailyPoints", userPoints.Score.ToString()},
-                { "Weekly", userPoints.GuessCount.ToString()},
+                { "RiddlesSolved", userPoints.RiddlesSolved.ToString()},
+                { "Score", userPoints.Score.ToString()},
             };
 
             string serializedData = JsonConvert.SerializeObject(cookieData);
@@ -37,7 +36,7 @@ namespace CipherJourney.Services
             Console.WriteLine(serializedData);
         }
 
-        public static void DailyModeCookie(string cipher, string sentence, HttpResponse response)
+        public static void CreateDailyModeCookie(string cipher, string sentence, HttpResponse response)
         {
 
             DateTime utcNow = DateTime.UtcNow;
@@ -93,6 +92,39 @@ namespace CipherJourney.Services
             response.Cookies.Append("DailyMode", serializedData, cookieOptions);
 
             Console.WriteLine(serializedData);
+        }
+        public static void SetDailyModeCookie(string cipher, string sentence, Dictionary<string, bool> wordGuessedStatus, long guessCount, int cipherShift, HttpResponse response, HttpRequest request)
+        {
+            // Calculate expiry (same logic as before)
+            DateTime utcNow = DateTime.UtcNow;
+            TimeZoneInfo londonTimeZone = TZConvert.GetTimeZoneInfo("Europe/London");
+            DateTime londonNow = TimeZoneInfo.ConvertTimeFromUtc(utcNow, londonTimeZone);
+            DateTime nextMidnight = londonNow.Date.AddDays(1);
+            DateTime expirationUtc = TimeZoneInfo.ConvertTimeToUtc(nextMidnight, londonTimeZone);
+            TimeSpan timeUntilMidnight = expirationUtc - utcNow;
+
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.UtcNow.Add(timeUntilMidnight),
+                HttpOnly = true,
+                Secure = request.IsHttps, // Use the passed-in request
+                SameSite = SameSiteMode.Strict
+            };
+
+            // Create the cookie data dictionary with all required fields and correct types
+            var cookieData = new Dictionary<string, object>
+            {
+                { "Cipher", cipher },
+                { "Sentence", sentence },
+                // Ensure wordGuessedStatus has ORIGINAL words as keys when passed in
+                { "WordGuessedStatus", wordGuessedStatus },
+                { "GuessCount", guessCount }, // Use the long value
+                { "CipherShift", cipherShift }
+            };
+
+            string serializedData = JsonConvert.SerializeObject(cookieData);
+            response.Cookies.Append("DailyMode", serializedData, cookieOptions); // Use the constant name
+            Console.WriteLine($"DailyMode cookie created/updated: {serializedData}");
         }
     }
 }
