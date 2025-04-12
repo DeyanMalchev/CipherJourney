@@ -37,10 +37,8 @@ namespace CipherJourney.Controllers
             {
                 Username = values["Username"],
                 Email = values["Email"],
-                DailyPoints = int.Parse(values["DailyPoints"]),
-                WeeklyPoints = int.Parse(values["WeeklyPoints"]),
-                DailiesDone = int.Parse(values["Daily"]),
-                WeekliesDone = int.Parse(values["Weekly"])
+                RiddlesSolved = int.Parse(values["RiddlesSolved"]),
+                Score = int.Parse(values["Score"])
             };
 
             return model;
