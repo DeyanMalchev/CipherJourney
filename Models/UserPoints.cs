@@ -5,9 +5,9 @@
         public int Id { get; set; }
 
         public int UserId { get; set; }
-        public int DailyScore { get; set; }
-        public int WeeklyScore { get; set; }
-        public int DailiesDone { get; set; }
-        public int WeekliesDone { get; set; }
+        public int RiddlesSolved { get; set; }
+        public int Score { get; set; }
+
+        public int GuessCount { get; set; }
     }
 }

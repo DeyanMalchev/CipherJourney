@@ -54,10 +54,9 @@ namespace CipherJourney.Services
             var userPoints = new UserPoints
             {
                 UserId = user.Id,
-                DailyScore = 0,
-                WeeklyScore = 0,
-                DailiesDone = 0,
-                WeekliesDone = 0
+                RiddlesSolved = 0,
+                Score = 0,
+                GuessCount = 0
             };
 
             _context.UserPoints.Add(userPoints);
@@ -67,7 +66,7 @@ namespace CipherJourney.Services
             {
                 UserId = user.Id,
                 Username = user.Username,
-                TotalPoints = userPoints.DailyScore + userPoints.WeeklyScore
+                TotalPoints = userPoints.Score
             };
 
             _context.Leaderboard.Add(leaderboard);

@@ -25,10 +25,9 @@ namespace CipherJourney.Services
                 { "UserId", user.Id.ToString() },
                 { "Username", user.Username },
                 { "Email", user.Email },
-                { "DailyPoints", userPoints.DailyScore.ToString()},
-                { "WeeklyPoints", userPoints.WeeklyScore.ToString()},
-                { "Daily", userPoints.DailiesDone.ToString()},
-                { "Weekly", userPoints.WeekliesDone.ToString()},
+                { "Daily", userPoints.RiddlesSolved.ToString()},
+                { "DailyPoints", userPoints.Score.ToString()},
+                { "Weekly", userPoints.GuessCount.ToString()},
             };
 
             string serializedData = JsonConvert.SerializeObject(cookieData);
