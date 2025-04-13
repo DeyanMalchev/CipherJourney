@@ -172,15 +172,92 @@ namespace CipherJourney.Services
             _context.SaveChanges();
         }
 
-        public static string[] GetDailyModeConfiguration (CipherJourneyDBContext _context)
+        public void GenerateDailyConfiguration(CipherJourneyDBContext _context, HttpResponse response, HttpRequest request)
         {
-            SentenceDailyModel sentenceDailyModel = _context.SentencesDaily.FirstOrDefault(u => u.Id == 1);
-            string sentence = sentenceDailyModel.Sentence;
+            // 1. Get random sentence from DB
+            var sentenceCount = _context.SentencesDaily.Count();
+            if (sentenceCount == 0) return;
 
-            CipherModel cipherModel = _context.Ciphers.FirstOrDefault(u => u.Id == 1);
-            string cipher = cipherModel.Cipher;
+            var random = new Random();
+            int sentenceIndex = random.Next(0, sentenceCount);
+            var sentence = _context.SentencesDaily.Skip(sentenceIndex).FirstOrDefault()?.Sentence;
 
-            return [cipher, sentence];
+            // 2. Get random cipher from DB
+            var cipherCount = _context.Ciphers.Count();
+            if (cipherCount == 0 || string.IsNullOrEmpty(sentence)) return;
+
+            int cipherIndex = random.Next(0, cipherCount);
+            var cipher = _context.Ciphers.Skip(cipherIndex).FirstOrDefault()?.Cipher;
+
+            // 3. Generate cipher key (if needed)
+            int shift = 3; // default
+            if (cipher == "Caesar")
+            {
+                shift = random.Next(1, 25); // Avoid 0/26
+            }
+
+            // 4. Initialize word status dictionary
+            var initialWordStatus = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+            var uniqueWords = Regex.Matches(sentence, @"\b[\w']+\b")
+                                   .Cast<Match>()
+                                   .Select(m => m.Value)
+                                   .Distinct(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var word in uniqueWords)
+            {
+                string originalCasing = Regex.Match(sentence, $@"\b{Regex.Escape(word)}\b", RegexOptions.IgnoreCase).Value;
+                if (!initialWordStatus.ContainsKey(originalCasing))
+                    initialWordStatus[originalCasing] = false;
+            }
+
+            // 5. Set the cookie
+            Cookies.SetDailyModeCookie(cipher, sentence, initialWordStatus, 0, shift, response, request);
+
+            Console.WriteLine($"Generated daily config: Cipher = {cipher}, Shift = {shift}, Sentence = \"{sentence}\"");
+        }
+
+        public static void UpdateUserPointsAfterDaily(int guessCount, string userId, CipherJourneyDBContext _context)
+        {
+
+            // Find the user points entry for the given user
+            var userPoints = _context.UserPoints.FirstOrDefault(up => up.UserId.ToString() == userId);
+
+            if (userPoints == null)
+            {
+                throw new InvalidOperationException("User points entry not found for userId: " + userId);
+            }
+
+            int awardedPoints;
+            if (guessCount <= 1) awardedPoints =  10;
+            else if (guessCount == 2) awardedPoints =  9;
+            else if (guessCount == 3) awardedPoints = 8;
+            else if (guessCount == 4) awardedPoints = 6;
+            else if (guessCount == 5) awardedPoints = 5;
+            else if (guessCount == 6) awardedPoints = 3;
+            else if (guessCount == 7) awardedPoints = 2;
+            else awardedPoints = 1;
+
+            // Update values
+            userPoints.Score += awardedPoints;
+            userPoints.RiddlesSolved += 1;
+            userPoints.GuessCount += guessCount;
+
+            // Save changes
+            _context.SaveChanges();
+
+            var leaderboard = _context.Leaderboard.FirstOrDefault(lb => lb.UserId.ToString() == userId);
+            leaderboard.TotalPoints = userPoints.Score;
+
+            _context.SaveChanges();
+
+            UserCompletedDaily userCompleted = new UserCompletedDaily 
+            { 
+                UserId = userPoints.UserId,
+                CompletionDate = DateTime.UtcNow.Date
+            };
+
+            _context.UsersCompletedDaily.Add(userCompleted);
+            _context.SaveChanges();
         }
     }
 }

@@ -4,6 +4,7 @@ using CipherJourney.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CipherJourney.Migrations
 {
     [DbContext(typeof(CipherJourneyDBContext))]
-    partial class CipherJourneyDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250413154855_Add_UserCompletedDaily")]
+    partial class Add_UserCompletedDaily
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

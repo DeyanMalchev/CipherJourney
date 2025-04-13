@@ -250,6 +250,7 @@ namespace CipherJourney.Controllers
                                         .Cast<Match>()
                                         .Select(m => m.Value)
                                         .Distinct(StringComparer.OrdinalIgnoreCase);
+
             foreach (var word in uniqueWords)
             {
                 string originalCasingWord = Regex.Match(sentence, $@"\b{Regex.Escape(word)}\b", RegexOptions.IgnoreCase).Value;

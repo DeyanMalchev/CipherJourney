@@ -17,5 +17,8 @@ namespace CipherJourney.Services
 
         public DbSet<CipherModel> Ciphers { get; set; }
         public DbSet<SentenceDailyModel> SentencesDaily { get; set; }
+        public DbSet<DailyGameConfiguration> DailyConfiguration { get; set; }
+
+        public DbSet<UserCompletedDaily> UsersCompletedDaily { get; set; }
     }
 }
