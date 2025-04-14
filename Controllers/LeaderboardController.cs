@@ -16,13 +16,20 @@ namespace CipherJourney.Controllers
 
         public IActionResult Leaderboard()
         {
+            LeaderboardViewModel leaderboardData;
+            if (!Request.Cookies.TryGetValue("CipherJourney", out var userCookie)) {
+
+                leaderboardData = BuildLeaderboardData(userCookie);
+                return View(leaderboardData);
+            }
+
             if (Request.Cookies.TryGetValue("LeaderboardStats", out var cachedJson))
             {
                 var cached = JsonConvert.DeserializeObject<LeaderboardViewModel>(cachedJson);
                 return View(cached);
             }
 
-            var leaderboardData = BuildLeaderboardData();
+            /*var leaderboardData = BuildLeaderboardData();*/
             var options = new CookieOptions
             {
                 Expires = DateTime.UtcNow.AddMinutes(10),
@@ -31,6 +38,7 @@ namespace CipherJourney.Controllers
                 SameSite = SameSiteMode.Strict
             };
 
+            leaderboardData = BuildLeaderboardData(userCookie);
             var serialized = JsonConvert.SerializeObject(leaderboardData);
             Response.Cookies.Append("LeaderboardStats", serialized, options);
 
@@ -38,7 +46,7 @@ namespace CipherJourney.Controllers
         }
 
         // This method gets the leaderboard data
-        private LeaderboardViewModel BuildLeaderboardData()
+        private LeaderboardViewModel BuildLeaderboardData(string userCookie)
         {
             // Step 1: Get all users ordered by score (Consider performance for large datasets)
             // Fetching all users might be inefficient. Consider adding filtering or pagination
@@ -53,7 +61,6 @@ namespace CipherJourney.Controllers
                                       up.Score
                                   }).ToList(); // Materialize the full ranked list once
 
-            // Step 2: Create Top 10 with Rank
             var top10 = allUsersRanked
                 .Take(10)
                 .Select((entry, index) => new LeaderboardEntry
@@ -64,23 +71,22 @@ namespace CipherJourney.Controllers
                 })
                 .ToList();
 
-            // Step 3: Get Current User Info
-            // Consider adding error handling for cookie parsing
-            var userCookie = Request.Cookies["CipherJourney"];
+            LeaderboardViewModel viewModel;
+
             if (userCookie == null)
             {
-                // Handle case where cookie is missing - perhaps redirect to login or return error
-                // For now, let's assume it exists or return an empty model / throw exception
-                // depending on your application flow.
-                // Example: return new LeaderboardViewModel { Top10 = top10, SurroundingEntries = new List<LeaderboardEntry>(), CurrentUsername = null };
-                throw new InvalidOperationException("User cookie not found.");
+
+                viewModel = new LeaderboardViewModel
+                {
+                    Top10 = top10
+                };
+
+                return viewModel;
             }
+            
             var userData = JsonConvert.DeserializeObject<Dictionary<string, string>>(userCookie);
             // It's safer to use TryGetValue
-            if (!userData.TryGetValue("Username", out var currentUsername))
-            {
-                throw new InvalidOperationException("Username not found in cookie data.");
-            }
+            string currentUsername = userData["Username"];
             // Similarly for UserId if needed later, though it's not used in the surrounding logic directly
             // int userId = int.Parse(userData["UserId"]);
 
@@ -129,7 +135,7 @@ namespace CipherJourney.Controllers
             //       surroundingEntries will remain empty.
 
             // Step 7: Build the ViewModel
-            var viewModel = new LeaderboardViewModel
+            viewModel = new LeaderboardViewModel
             {
                 Top10 = top10,
                 SurroundingEntries = surroundingEntries, // Now holds List<LeaderboardEntry>

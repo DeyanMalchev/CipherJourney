@@ -26,26 +26,29 @@
             }
         </tbody>
     </table>
-
-    <h5 class="text-center mt-5">Your Position:</h5>
-    <table class="table table-bordered text-center">
-        <thead class="table-light">
-            <tr>
-                <th>Rank</th>
-                <th>Username</th>
-                <th>Points</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var entry in Model.SurroundingEntries)
-            {
-                var isCurrentUser = entry.Username == Model.CurrentUsername;
-                <tr class="@(isCurrentUser ? "table-info fw-bold" : "")">
-                    <td>@entry.Rank</td>
-                    <td>@entry.Username</td>
-                    <td>@entry.Score</td>
+    @if (ViewContext.HttpContext.Request.Cookies.ContainsKey("CipherJourney"))
+    {
+        
+        <h5 class="text-center mt-5">Your Position:</h5>
+        <table class="table table-bordered text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>Rank</th>
+                    <th>Username</th>
+                    <th>Points</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>     
+                    @foreach (var entry in Model.SurroundingEntries)
+                    {
+                        var isCurrentUser = entry.Username == Model.CurrentUsername;
+                        <tr class="@(isCurrentUser ? "table-info fw-bold" : "")">
+                            <td>@entry.Rank</td>
+                            <td>@entry.Username</td>
+                            <td>@entry.Score</td>
+                        </tr>
+                    }
+            </tbody>
+        </table>
+    }
 </div>
