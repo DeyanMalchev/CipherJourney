@@ -70,8 +70,8 @@ namespace CipherJourney.Controllers
                     cipherShift = loadedShift;
                 }
 
-                long guessCount = 0;
-                if (gameState.TryGetValue("GuessCount", out object countObj) && long.TryParse(countObj?.ToString(), out long loadedCount))
+                int guessCount = 0;
+                if (gameState.TryGetValue("GuessCount", out object countObj) && int.TryParse(countObj?.ToString(), out int loadedCount))
                 {
                     guessCount = loadedCount;
                 }
@@ -140,8 +140,23 @@ namespace CipherJourney.Controllers
                 // --- 5. Update the Cookie (using the Cookies class method) ---
                 string cipher = gameState.TryGetValue("Cipher", out object cipherObj) ? cipherObj.ToString() : "Caesar"; // Get cipher name
 
-                // Call the Cookies class method to handle the cookie update
-                Cookies.SetDailyModeCookie(cipher, originalSentence, wordGuessedStatus, guessCount, cipherShift, Response, Request);
+                bool isGameComplete = false;
+
+                if (wordGuessedStatus.Values.All(v => v))
+                {
+                    var userCookie = Request.Cookies["CipherJourney"];
+                    if (string.IsNullOrEmpty(userCookie))
+                    {
+                        return Json(new { error = "Game state not found. Please start a new game." });
+                    }
+
+                    var userData = JsonConvert.DeserializeObject<Dictionary<string, string>>(userCookie);
+                    int userID = int.Parse(userData["UserId"]);
+                    DB_Queries.UpdateUserPointsAfterDaily(guessCount, userID, _context);
+                    isGameComplete = true;
+                }
+                    // Call the Cookies class method to handle the cookie update
+                Cookies.SetDailyModeCookie(cipher, originalSentence, wordGuessedStatus, guessCount, cipherShift, isGameComplete, Response, Request);
 
                 // --- 6. Return JSON ---
                 return Json(new
@@ -206,9 +221,14 @@ namespace CipherJourney.Controllers
                         wordGuessedStatus = new Dictionary<string, bool>(tempDict, StringComparer.OrdinalIgnoreCase);
                     }
                 }
+
                 // Note: No need to initialize here typically, as GenerateGameDaily should have done it.
                 // If initialization IS needed, add the same logic as in CheckGuess.
-                bool isGameComplete = wordGuessedStatus.Count > 0 && wordGuessedStatus.Values.All(guessed => guessed);
+                bool isGameComplete = false;
+                if ((bool)gameState["IsGameComplete"] == true)
+                {
+                    isGameComplete = true;
+                }
                 ViewData["IsComplete"] = isGameComplete;
 
                 // --- ADD CODE TO GET GUESS COUNT ---
@@ -261,7 +281,7 @@ namespace CipherJourney.Controllers
             }
 
             // Use the Cookies class method to create the cookie
-            Cookies.SetDailyModeCookie(cipherType, sentence, initialWordStatus, 0, shift, Response, Request);
+            Cookies.SetDailyModeCookie(cipherType, sentence, initialWordStatus, 0, shift, false, Response, Request);
         }
     }
 }

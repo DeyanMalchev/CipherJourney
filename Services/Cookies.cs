@@ -38,7 +38,7 @@ namespace CipherJourney.Services
             Console.WriteLine(serializedData);
         }
 
-        public static void SetDailyModeCookie(string cipher, string sentence, Dictionary<string, bool> wordGuessedStatus, long guessCount, int cipherShift, HttpResponse response, HttpRequest request)
+        public static void SetDailyModeCookie(string cipher, string sentence, Dictionary<string, bool> wordGuessedStatus, long guessCount, int cipherShift, bool isGameComplete, HttpResponse response, HttpRequest request)
         {
             // Calculate expiry (same logic as before)
             DateTime utcNow = DateTime.UtcNow;
@@ -64,7 +64,8 @@ namespace CipherJourney.Services
                 // Ensure wordGuessedStatus has ORIGINAL words as keys when passed in
                 { "WordGuessedStatus", wordGuessedStatus },
                 { "GuessCount", guessCount }, // Use the long value
-                { "CipherShift", cipherShift }
+                { "CipherShift", cipherShift },
+                { "IsGameComplete", isGameComplete}
             };
 
             string serializedData = JsonConvert.SerializeObject(cookieData);

@@ -211,16 +211,23 @@ namespace CipherJourney.Services
             }
 
             // 5. Set the cookie
-            Cookies.SetDailyModeCookie(cipher, sentence, initialWordStatus, 0, shift, response, request);
+            Cookies.SetDailyModeCookie(cipher, sentence, initialWordStatus, 0, shift, false, response, request);
 
             Console.WriteLine($"Generated daily config: Cipher = {cipher}, Shift = {shift}, Sentence = \"{sentence}\"");
         }
 
-        public static void UpdateUserPointsAfterDaily(int guessCount, string userId, CipherJourneyDBContext _context)
+        public static void UpdateUserPointsAfterDaily(int guessCount, int userId, CipherJourneyDBContext _context)
         {
 
+            bool hasCompleted = _context.UsersCompletedDaily
+                        .Any(uc => uc.UserId == userId && uc.CompletionDate == DateTime.UtcNow.Date);
+
+            if (hasCompleted)
+            {
+                return;
+            }
             // Find the user points entry for the given user
-            var userPoints = _context.UserPoints.FirstOrDefault(up => up.UserId.ToString() == userId);
+            var userPoints = _context.UserPoints.FirstOrDefault(up => up.UserId == userId);
 
             if (userPoints == null)
             {
@@ -245,7 +252,7 @@ namespace CipherJourney.Services
             // Save changes
             _context.SaveChanges();
 
-            var leaderboard = _context.Leaderboard.FirstOrDefault(lb => lb.UserId.ToString() == userId);
+            var leaderboard = _context.Leaderboard.FirstOrDefault(lb => lb.UserId == userId);
             leaderboard.TotalPoints = userPoints.Score;
 
             _context.SaveChanges();
