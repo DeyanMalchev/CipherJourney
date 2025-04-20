@@ -94,13 +94,14 @@
 
     <div class="row">
 
-        <div class="col-md-7" style="border: solid 1.5px">
+        <div class="col-md-12" style="border: solid 1.5px">
             <h2 class="text-center">Let’s see what the sentence of the day is...</h2>
+            <div id="guessCounterDisplay" style="text-align: center; margin-top: 15px; font-size: 1.1em;">
+                Guesses Made: <span id="guessCountValue">@ViewData["InitialGuessCount"]</span>
+            </div>
             <div class="d-flex flex-wrap justify-content-center" id="cipheredSentence">
 
-                <div id="guessCounterDisplay" style="text-align: center; margin-top: 15px; font-size: 1.1em;">
-                    Guesses Made: <span id="guessCountValue">@ViewData["InitialGuessCount"]</span>
-                </div>
+                
                 <form id="guessForm">
                     <div id="sentenceDisplay" style="justify-content: center">
                         @foreach (var item in Model) // Iterate through the list
@@ -131,17 +132,6 @@
             <div id="resultMessage"></div> <!-- Message area -->
 
         </div>
-
-        <div class="col-md-5" style="border: solid 1.5px">
-            <h2>Hints:</h2>
-            <ul>
-                @for (int i = 0; i <= 5; i++)
-                {
-                    <li>hint</li>
-                }
-            </ul>
-        </div>
-
     </div>
 </div>
 
