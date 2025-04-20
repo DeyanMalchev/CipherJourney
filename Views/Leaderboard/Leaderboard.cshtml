@@ -4,6 +4,10 @@
     ViewData["Title"] = "Leaderboard";
 }
 
+<form asp-controller="Leaderboard" asp-action="RefreshLeaderboard" method="post">
+    <button type="submit" class="btn btn-outline-primary mb-3">🔄 Refresh</button>
+</form>
+
 <div class="container">
     <h2 class="text-center mt-4">🏆 Top 10 Players</h2>
     <table class="table table-bordered text-center">
@@ -21,7 +25,7 @@
                 <tr class="@(isCurrentUser ? "table-success fw-bold" : "")">
                     <td>@entry.Rank</td>
                     <td>@entry.Username</td>
-                    <td>@entry.Score</td>
+                    <td>@entry.TotalPoints</td>
                 </tr>
             }
         </tbody>
@@ -31,7 +35,7 @@
         
         <h5 class="text-center mt-5">Your Position:</h5>
         <table class="table table-bordered text-center">
-            <thead class="table-light">
+            <thead class="table-dark">
                 <tr>
                     <th>Rank</th>
                     <th>Username</th>
@@ -45,7 +49,7 @@
                         <tr class="@(isCurrentUser ? "table-info fw-bold" : "")">
                             <td>@entry.Rank</td>
                             <td>@entry.Username</td>
-                            <td>@entry.Score</td>
+                            <td>@entry.TotalPoints</td>
                         </tr>
                     }
             </tbody>

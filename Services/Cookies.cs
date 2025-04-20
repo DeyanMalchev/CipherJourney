@@ -1,4 +1,5 @@
-﻿using CipherJourney.Models;
+﻿using Azure;
+using CipherJourney.Models;
 using Newtonsoft.Json;
 using System;
 using System.Text.Json;
@@ -14,6 +15,7 @@ namespace CipherJourney.Services
 
             var cookieOptions = new CookieOptions
             {
+                Expires = DateTime.UtcNow.AddDays(10),
                 HttpOnly = true, // Prevents JavaScript access for security
                 Secure = true, // Enforces HTTPS
                 SameSite = SameSiteMode.Strict
@@ -36,63 +38,6 @@ namespace CipherJourney.Services
             Console.WriteLine(serializedData);
         }
 
-        public static void CreateDailyModeCookie(string cipher, string sentence, HttpResponse response)
-        {
-
-            DateTime utcNow = DateTime.UtcNow;
-
-            // Get the next 00:00 London time
-            TimeZoneInfo londonTimeZone = TZConvert.GetTimeZoneInfo("Europe/London");
-            DateTime londonNow = TimeZoneInfo.ConvertTimeFromUtc(utcNow, londonTimeZone);
-
-            // Calculate next midnight
-            DateTime nextMidnight = londonNow.Date.AddDays(1); // Moves to next day's 00:00
-
-            // Get the expiration time in UTC
-            DateTime expirationUtc = TimeZoneInfo.ConvertTimeToUtc(nextMidnight, londonTimeZone);
-
-            //Time until exparation
-            TimeSpan timeUntilMidnight = expirationUtc - utcNow;
-
-            TimeSpan one_minute = TimeSpan.Zero;
-
-            var cookieOptions = new CookieOptions
-            {
-                Expires = DateTime.UtcNow.Add(timeUntilMidnight),
-                HttpOnly = true, // Prevents JavaScript access for security
-                Secure = true, // Enforces HTTPS
-                SameSite = SameSiteMode.Strict
-            };
-
-
-            string[] words = Regex.Split(sentence, @"\W+").Where(w => w.Length > 0).ToArray();
-            Console.WriteLine(words);
-
-            // Cipher each word separately
-            string[] cipheredWords = new string[words.Length];
-            Dictionary<string, bool> word_bool = new Dictionary<string, bool>();
-
-            for (int i = 0; i < words.Length; i++) {
-                cipheredWords[i] = Ciphers.CaesarCipher(words[i], 3);
-                word_bool.Add(cipheredWords[i], false);
-            }
-
-            var cookieData = new Dictionary<string, object>
-            {
-                { "Cipher", cipher },
-                { "Sentence", sentence },
-                { "WordGuessedStatus", word_bool },
-                { "GuessCount", 0 },
-                { "CipherShift", 3 } 
-
-            };
-
-            string serializedData = JsonConvert.SerializeObject(cookieData);
-
-            response.Cookies.Append("DailyMode", serializedData, cookieOptions);
-
-            Console.WriteLine(serializedData);
-        }
         public static void SetDailyModeCookie(string cipher, string sentence, Dictionary<string, bool> wordGuessedStatus, long guessCount, int cipherShift, HttpResponse response, HttpRequest request)
         {
             // Calculate expiry (same logic as before)
@@ -125,6 +70,22 @@ namespace CipherJourney.Services
             string serializedData = JsonConvert.SerializeObject(cookieData);
             response.Cookies.Append("DailyMode", serializedData, cookieOptions); // Use the constant name
             Console.WriteLine($"DailyMode cookie created/updated: {serializedData}");
+        }
+
+        public static void SetLeaderboardCookie(LeaderboardViewModel leaderboardViewModel, HttpResponse response) 
+        {
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.UtcNow.AddMinutes(15),
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            };
+
+            string json = JsonConvert.SerializeObject(leaderboardViewModel);
+            
+            response.Cookies.Append("LeaderboardData", json, cookieOptions);
+            Console.WriteLine(json);
         }
     }
 }

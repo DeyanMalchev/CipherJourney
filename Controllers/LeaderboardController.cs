@@ -29,18 +29,10 @@ namespace CipherJourney.Controllers
                 return View(cached);
             }
 
-            /*var leaderboardData = BuildLeaderboardData();*/
-            var options = new CookieOptions
-            {
-                Expires = DateTime.UtcNow.AddMinutes(10),
-                HttpOnly = true,
-                Secure = Request.IsHttps,
-                SameSite = SameSiteMode.Strict
-            };
+            
 
             leaderboardData = BuildLeaderboardData(userCookie);
-            var serialized = JsonConvert.SerializeObject(leaderboardData);
-            Response.Cookies.Append("LeaderboardStats", serialized, options);
+            Cookies.SetLeaderboardCookie(leaderboardData, Response);
 
             return View(leaderboardData);
         }
@@ -51,14 +43,14 @@ namespace CipherJourney.Controllers
             // Step 1: Get all users ordered by score (Consider performance for large datasets)
             // Fetching all users might be inefficient. Consider adding filtering or pagination
             // if the number of users is very large.
-            var allUsersRanked = (from up in _context.UserPoints
+            var allUsersRanked = (from up in _context.Leaderboard
                                   join u in _context.Users on up.UserId equals u.Id
-                                  orderby up.Score descending
+                                  orderby up.TotalPoints descending
                                   select new
                                   {
                                       up.UserId,
                                       u.Username,
-                                      up.Score
+                                      up.TotalPoints
                                   }).ToList(); // Materialize the full ranked list once
 
             var top10 = allUsersRanked
@@ -67,7 +59,7 @@ namespace CipherJourney.Controllers
                 {
                     Rank = index + 1, // Rank is 1-based index within the top 10 slice
                     Username = entry.Username,
-                    Score = entry.Score
+                    TotalPoints = entry.TotalPoints
                 })
                 .ToList();
 
@@ -127,7 +119,7 @@ namespace CipherJourney.Controllers
                         // The Rank is the startIndex + the index within the slice + 1
                         Rank = startIndex + index + 1,
                         Username = entry.Username,
-                        Score = entry.Score
+                        TotalPoints = entry.TotalPoints
                     })
                     .ToList();
             }
@@ -143,6 +135,13 @@ namespace CipherJourney.Controllers
             };
 
             return viewModel;
+        }
+
+        public IActionResult RefreshLeaderboard() {
+            Response.Cookies.Delete("LeaderboardData");
+            Console.WriteLine("Cooke leaderboard deleted");
+            Console.WriteLine(Request.Cookies["LeaderboardData"]);
+            return RedirectToAction("Leaderboard");
         }
     }
 }

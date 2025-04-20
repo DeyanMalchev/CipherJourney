@@ -30,10 +30,16 @@ namespace CipherJourney.Controllers
                 var existingUser = DB_Queries.GetExistingUser(signUpModel, _context);
                 if (existingUser != null)
                 {
-                    if (existingUser.Username == existingUser.Username)
-                        throw new InvalidOperationException("Username already exists.");
-                    if (existingUser.Email == existingUser.Email)
-                        throw new InvalidOperationException("Email already exists.");
+                    if (existingUser.Username == signUpModel.Username)
+                    {
+                        ModelState.AddModelError(string.Empty, "Username already exists.");
+                        return View("SignUp", signUpModel);
+                    }
+                    else if (existingUser.Email == signUpModel.Email)
+                    {
+                        ModelState.AddModelError(string.Empty, "Email already exists.");
+                        return View("SignUp", signUpModel);
+                    }
                 }
 
                 DB_Queries.AddUser(signUpModel, _context);
