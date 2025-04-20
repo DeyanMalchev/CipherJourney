@@ -2,11 +2,12 @@
 using CipherJourney.Models;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
-namespace CipherJourney.Services
+    namespace CipherJourney.Services
 {
     public class DB_Queries
     {
@@ -45,7 +46,7 @@ namespace CipherJourney.Services
             _context.SaveChanges();
         }
 
-        public static UserPoints ConfigureTablesAfterVerification(User user, UsersUnverified userUnverified, CipherJourneyDBContext _context) 
+        public static UserPoints ConfigureTablesAfterVerification(User user, UsersUnverified userUnverified, CipherJourneyDBContext _context)
         {
             user.IsEmailVerified = true;
             _context.UsersUnverified.Remove(userUnverified);
@@ -75,13 +76,13 @@ namespace CipherJourney.Services
             return userPoints;
         }
 
-        public static void VerifyUserEmail(User user, IEmailService _emailService, CipherJourneyDBContext _context) 
+        public static void VerifyUserEmail(User user, IEmailService _emailService, CipherJourneyDBContext _context)
         {
 
             Regex emailRegex = new Regex(@"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|""(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|
-                             \\[\x01-\x09\x0b\x0c\x0e-\x7f])*"")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]
-                             |2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c
-                             \x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])");
+                                 \\[\x01-\x09\x0b\x0c\x0e-\x7f])*"")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]
+                                 |2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c
+                                 \x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])");
 
             var userUnverified = _context.UsersUnverified.FirstOrDefault(u => u.UserID == user.Id);
 
@@ -120,9 +121,9 @@ namespace CipherJourney.Services
         {
 
             Regex emailRegex = new Regex(@"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|""(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|
-                             \\[\x01-\x09\x0b\x0c\x0e-\x7f])*"")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]
-                             |2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c
-                             \x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])");
+                                 \\[\x01-\x09\x0b\x0c\x0e-\x7f])*"")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]
+                                 |2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c
+                                 \x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])");
 
             // Login user with EMAIL
             if (emailRegex.IsMatch(loginModel.Info))
@@ -141,7 +142,7 @@ namespace CipherJourney.Services
                 }
                 return null;
             }
-            else 
+            else
             {
                 var user = _context.Users.FirstOrDefault(u => u.Username == loginModel.Info);
                 if (user == null)
@@ -159,7 +160,7 @@ namespace CipherJourney.Services
             return null;
         }
 
-        public static UserPoints GetUserPoints(User user,CipherJourneyDBContext _context)
+        public static UserPoints GetUserPoints(User user, CipherJourneyDBContext _context)
         {
             UserPoints? userPoints = _context.UserPoints.FirstOrDefault(u => u.UserId == user.Id);
 
@@ -170,50 +171,6 @@ namespace CipherJourney.Services
         {
             _context.Users.Remove(user);
             _context.SaveChanges();
-        }
-
-        public void GenerateDailyConfiguration(CipherJourneyDBContext _context, HttpResponse response, HttpRequest request)
-        {
-            // 1. Get random sentence from DB
-            var sentenceCount = _context.SentencesDaily.Count();
-            if (sentenceCount == 0) return;
-
-            var random = new Random();
-            int sentenceIndex = random.Next(0, sentenceCount);
-            var sentence = _context.SentencesDaily.Skip(sentenceIndex).FirstOrDefault()?.Sentence;
-
-            // 2. Get random cipher from DB
-            var cipherCount = _context.Ciphers.Count();
-            if (cipherCount == 0 || string.IsNullOrEmpty(sentence)) return;
-
-            int cipherIndex = random.Next(0, cipherCount);
-            var cipher = _context.Ciphers.Skip(cipherIndex).FirstOrDefault()?.Cipher;
-
-            // 3. Generate cipher key (if needed)
-            int shift = 3; // default
-            if (cipher == "Caesar")
-            {
-                shift = random.Next(1, 25); // Avoid 0/26
-            }
-
-            // 4. Initialize word status dictionary
-            var initialWordStatus = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-            var uniqueWords = Regex.Matches(sentence, @"\b[\w']+\b")
-                                   .Cast<Match>()
-                                   .Select(m => m.Value)
-                                   .Distinct(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var word in uniqueWords)
-            {
-                string originalCasing = Regex.Match(sentence, $@"\b{Regex.Escape(word)}\b", RegexOptions.IgnoreCase).Value;
-                if (!initialWordStatus.ContainsKey(originalCasing))
-                    initialWordStatus[originalCasing] = false;
-            }
-
-            // 5. Set the cookie
-            Cookies.SetDailyModeCookie(cipher, sentence, initialWordStatus, 0, shift, false, response, request);
-
-            Console.WriteLine($"Generated daily config: Cipher = {cipher}, Shift = {shift}, Sentence = \"{sentence}\"");
         }
 
         public static void UpdateUserPointsAfterDaily(int guessCount, int userId, CipherJourneyDBContext _context)
@@ -235,8 +192,8 @@ namespace CipherJourney.Services
             }
 
             int awardedPoints;
-            if (guessCount <= 1) awardedPoints =  10;
-            else if (guessCount == 2) awardedPoints =  9;
+            if (guessCount <= 1) awardedPoints = 10;
+            else if (guessCount == 2) awardedPoints = 9;
             else if (guessCount == 3) awardedPoints = 8;
             else if (guessCount == 4) awardedPoints = 6;
             else if (guessCount == 5) awardedPoints = 5;
@@ -249,22 +206,88 @@ namespace CipherJourney.Services
             userPoints.RiddlesSolved += 1;
             userPoints.GuessCount += guessCount;
 
-            // Save changes
-            _context.SaveChanges();
 
             var leaderboard = _context.Leaderboard.FirstOrDefault(lb => lb.UserId == userId);
             leaderboard.TotalPoints = userPoints.Score;
 
             _context.SaveChanges();
 
-            UserCompletedDaily userCompleted = new UserCompletedDaily 
-            { 
+            UserCompletedDaily userCompleted = new UserCompletedDaily
+            {
                 UserId = userPoints.UserId,
                 CompletionDate = DateTime.UtcNow.Date
             };
 
             _context.UsersCompletedDaily.Add(userCompleted);
             _context.SaveChanges();
+
+        }
+
+        public static void GenerateDailyConfiguration(CipherJourneyDBContext _context, HttpResponse response, HttpRequest request)
+        {
+            DailyGameConfiguration dailyGameConfiguration = _context.DailyConfiguration.OrderByDescending(d => d.Date).FirstOrDefault();
+            var currectDate = DateTime.UtcNow.Date;
+
+            if (dailyGameConfiguration != null) 
+            {
+                if (dailyGameConfiguration.Date == currectDate) return;
+            }
+
+            // 1. Get random sentence from DB
+            var sentenceCount = _context.SentencesDaily.Count();
+            if (sentenceCount == 0) return;
+
+            var random = new Random();
+            int sentenceIndex = random.Next(0, sentenceCount);
+            var sentence = _context.SentencesDaily.Skip(sentenceIndex).FirstOrDefault()?.Sentence;
+
+            // 2. Get random cipher from DB
+            var cipherCount = _context.Ciphers.Count();
+            if (cipherCount == 0 || string.IsNullOrEmpty(sentence)) return;
+
+            int cipherIndex = random.Next(0, cipherCount);
+            var cipher = _context.Ciphers.Skip(cipherIndex).FirstOrDefault()?.Cipher;
+
+            // 3. Generate cipher key (if needed)
+            int key = 3; // default
+            if (cipher == "Caesar")
+            {
+                key = random.Next(1, 25); // Avoid 0/26
+            }
+
+
+            dailyGameConfiguration = new DailyGameConfiguration()
+            {
+                Sentence = sentence,
+                Cipher = cipher,
+                Key = key.ToString(),
+                Date = currectDate
+            };
+
+            _context.DailyConfiguration.Add(dailyGameConfiguration);
+            _context.SaveChanges();
+
+            // REMOVE ALL CONTENT/ROWS
+            var allCompletedDailyUsers = _context.UsersCompletedDaily.ToList();
+            _context.UsersCompletedDaily.RemoveRange(_context.UsersCompletedDaily);
+            _context.SaveChanges();
+        }
+
+        public static UserCompletedDaily GetUserCompletedDaily(CipherJourneyDBContext _context, HttpRequest request) 
+        {
+            var userCookie = request.Cookies["CipherJourney"];
+            if (userCookie == null) return null;
+
+            var userData = JsonConvert.DeserializeObject<Dictionary<string, string>>(userCookie);
+            int userID = int.Parse(userData["UserId"]);
+
+            UserCompletedDaily userCompletedDaily = _context.UsersCompletedDaily.FirstOrDefault(ucd => ucd.UserId == userID);
+
+            return userCompletedDaily;
+        }
+
+        public static DailyGameConfiguration GetDailyGameConfiguration(CipherJourneyDBContext _context) {
+            return _context.DailyConfiguration.OrderByDescending(d => d.Date).FirstOrDefault();
         }
     }
 }

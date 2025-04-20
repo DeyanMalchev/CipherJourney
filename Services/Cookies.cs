@@ -38,7 +38,7 @@ namespace CipherJourney.Services
             Console.WriteLine(serializedData);
         }
 
-        public static void SetDailyModeCookie(string cipher, string sentence, Dictionary<string, bool> wordGuessedStatus, long guessCount, int cipherShift, bool isGameComplete, HttpResponse response, HttpRequest request)
+        public static void SetDailyModeCookie(string cipher, string sentence, Dictionary<string, bool> wordGuessedStatus, long guessCount, string cipherShift, bool isGameComplete, HttpResponse response, HttpRequest request)
         {
             // Calculate expiry (same logic as before)
             DateTime utcNow = DateTime.UtcNow;

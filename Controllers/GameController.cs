@@ -22,7 +22,7 @@ namespace CipherJourney.Controllers
 
         // --- Helper Method to Build Display Data ---
         // Encapsulates the logic to create the display list from the state
-        private List<object> BuildSentenceDisplayData(string originalSentence, int cipherShift, Dictionary<string, bool> wordStatus)
+        private List<object> BuildSentenceDisplayData(string originalSentence, string cipherShift, Dictionary<string, bool> wordStatus)
         {
             var displayData = new List<object>();
             if (string.IsNullOrEmpty(originalSentence) || wordStatus == null) return displayData;
@@ -36,7 +36,7 @@ namespace CipherJourney.Controllers
                 if (isActualWord)
                 {
                     bool isGuessed = wordStatus.TryGetValue(part, out bool status) && status;
-                    string displayText = isGuessed ? part : Ciphers.CaesarCipher(part, cipherShift);
+                    string displayText = isGuessed ? part : Ciphers.CaesarCipher(part, int.Parse(cipherShift));
                     displayData.Add(new { displayText, isGuessed });
                 }
             }
@@ -64,10 +64,10 @@ namespace CipherJourney.Controllers
                 }
                 string originalSentence = sentenceObj.ToString();
 
-                int cipherShift = 3;
-                if (gameState.TryGetValue("CipherShift", out object shiftObj) && int.TryParse(shiftObj?.ToString(), out int loadedShift))
+                string cipherShift = "3";
+                if (gameState.TryGetValue("CipherShift", out object shiftObj))
                 {
-                    cipherShift = loadedShift;
+                    cipherShift = shiftObj.ToString();
                 }
 
                 int guessCount = 0;
@@ -141,7 +141,6 @@ namespace CipherJourney.Controllers
                 string cipher = gameState.TryGetValue("Cipher", out object cipherObj) ? cipherObj.ToString() : "Caesar"; // Get cipher name
 
                 bool isGameComplete = false;
-
                 if (wordGuessedStatus.Values.All(v => v))
                 {
                     var userCookie = Request.Cookies["CipherJourney"];
@@ -203,14 +202,24 @@ namespace CipherJourney.Controllers
                     Response.Cookies.Delete("DailyMode");
                     return RedirectToAction("Play");
                 }
+
+
                 string originalSentence = sentenceObj.ToString();
                 Console.Write(originalSentence);
 
-                int cipherShift = 3;
-                if (gameState.TryGetValue("CipherShift", out object shiftObj) && int.TryParse(shiftObj?.ToString(), out int loadedShift))
+                string cipherShift = "3";
+                if (gameState.TryGetValue("CipherShift", out object shiftObj))
                 {
-                    cipherShift = loadedShift;
+                    cipherShift = shiftObj.ToString();
                 }
+
+                bool isGameComplete = false;
+                if ((bool)gameState["IsGameComplete"] == true)
+                {
+                    isGameComplete = true;
+                }
+                ViewData["IsComplete"] = isGameComplete;
+
 
                 var wordGuessedStatus = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
                 if (gameState.TryGetValue("WordGuessedStatus", out object statusObj) && statusObj is JObject statusJObject)
@@ -221,22 +230,16 @@ namespace CipherJourney.Controllers
                         wordGuessedStatus = new Dictionary<string, bool>(tempDict, StringComparer.OrdinalIgnoreCase);
                     }
                 }
-
                 // Note: No need to initialize here typically, as GenerateGameDaily should have done it.
                 // If initialization IS needed, add the same logic as in CheckGuess.
-                bool isGameComplete = false;
-                if ((bool)gameState["IsGameComplete"] == true)
-                {
-                    isGameComplete = true;
-                }
-                ViewData["IsComplete"] = isGameComplete;
 
                 // --- ADD CODE TO GET GUESS COUNT ---
-                long guessCount = 0; // Default if not found
-                if (gameState.TryGetValue("GuessCount", out object countObj) && long.TryParse(countObj?.ToString(), out long loadedCount))
+                int guessCount = 0; // Default if not found
+                if (gameState.TryGetValue("GuessCount", out object countObj) && int.TryParse(countObj?.ToString(), out int loadedCount))
                 {
                     guessCount = loadedCount;
                 }
+
                 // Pass the count to the View using ViewData
                 ViewData["InitialGuessCount"] = guessCount;
 
@@ -258,30 +261,42 @@ namespace CipherJourney.Controllers
         // Ensure this method sets the cookie correctly, including an initialized WordGuessedStatus
         public void GenerateGameDaily()
         {
-            // Assuming GetDailyModeConfiguration returns sentence and cipher details
-            // Let's simulate getting values
-            string sentence = "The quick brown fox jumps over the lazy dog"; // Example sentence
-            string cipherType = "Caesar";
-            int shift = 3; // Example shift
+
+            DB_Queries.GenerateDailyConfiguration(_context, Response, Request);
+
+            DailyGameConfiguration dailyGameConfiguration = DB_Queries.GetDailyGameConfiguration(_context);
+
+            UserCompletedDaily userCompletedDaily = DB_Queries.GetUserCompletedDaily(_context, Request);
+
+
+            bool isCompleted = false;
+            UserPoints userPoints;
+            int guessCount = 0;
+            if (userCompletedDaily != null) { 
+                isCompleted = true;
+                userPoints = _context.UserPoints.FirstOrDefault(up => up.UserId == userCompletedDaily.UserId);
+                guessCount = userPoints.GuessCount;
+            }
+
 
             // Initialize the guessed status dictionary - all false initially
             var initialWordStatus = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-            var uniqueWords = Regex.Matches(sentence, @"\b[\w']+\b")
+            var uniqueWords = Regex.Matches(dailyGameConfiguration.Sentence, @"\b[\w']+\b")
                                         .Cast<Match>()
                                         .Select(m => m.Value)
                                         .Distinct(StringComparer.OrdinalIgnoreCase);
 
             foreach (var word in uniqueWords)
             {
-                string originalCasingWord = Regex.Match(sentence, $@"\b{Regex.Escape(word)}\b", RegexOptions.IgnoreCase).Value;
+                string originalCasingWord = Regex.Match(dailyGameConfiguration.Sentence, $@"\b{Regex.Escape(word)}\b", RegexOptions.IgnoreCase).Value;
                 if (!initialWordStatus.ContainsKey(originalCasingWord))
                 {
-                    initialWordStatus.Add(originalCasingWord, false);
+                    initialWordStatus.Add(originalCasingWord, isCompleted);
                 }
             }
 
             // Use the Cookies class method to create the cookie
-            Cookies.SetDailyModeCookie(cipherType, sentence, initialWordStatus, 0, shift, false, Response, Request);
+            Cookies.SetDailyModeCookie(dailyGameConfiguration.Cipher, dailyGameConfiguration.Sentence, initialWordStatus, guessCount, dailyGameConfiguration.Key, isCompleted, Response, Request);
         }
     }
 }
