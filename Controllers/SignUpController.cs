@@ -44,8 +44,8 @@ namespace CipherJourney.Controllers
 
                 DB_Queries.AddUser(signUpModel, _context);
 
-                User user = _context.Users.FirstOrDefault(u => u.Email == signUpModel.Email);
-                DB_Queries.VerifyUserEmail(user, _emailService, _context);
+                User user = DB_Queries.GetExistingUser(signUpModel, _context);
+                DB_Queries.SendEmailVerification(user, _emailService, _context);
 
                 var emailVerificationModel = new EmailVerificationModel
                 {
@@ -66,11 +66,11 @@ namespace CipherJourney.Controllers
                 var user = _context.Users.FirstOrDefault(u => u.Email == emailVerificationModel.Email);
                 if (user != null)
                 {
-                    var userUnverified = _context.UsersUnverified.FirstOrDefault(u => u.UserID == user.Id);
+                    var userVerificationTokens = _context.UserVerificationTokens.FirstOrDefault(u => u.UserID == user.Id);
 
-                    if (userUnverified.VerificationToken.Equals(emailVerificationModel.InputToken))
+                    if (userVerificationTokens.VerificationToken.Equals(emailVerificationModel.InputToken))
                     {
-                        var userPoints = DB_Queries.ConfigureTablesAfterVerification(user, userUnverified, _context);
+                        var userPoints = DB_Queries.ConfigureTablesAfterVerification(user, userVerificationTokens, _context);
 
                         Cookies.CreateCookieAccount(user, userPoints, Response);
 

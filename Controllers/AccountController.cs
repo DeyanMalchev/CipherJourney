@@ -12,10 +12,12 @@ namespace CipherJourney.Controllers
 
 
         private readonly CipherJourneyDBContext _context;
+        private readonly Services.IEmailService _emailService;
 
-        public AccountController(CipherJourneyDBContext context)
+        public AccountController(CipherJourneyDBContext context, Services.IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public IActionResult Account()
@@ -53,7 +55,6 @@ namespace CipherJourney.Controllers
 
             var cookie = Request.Cookies["CipherJourney"];
             var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(cookie);
-            var userId = int.Parse(data["UserId"]);
 
             SignUpModel signUpModel = new SignUpModel
             {
@@ -78,6 +79,103 @@ namespace CipherJourney.Controllers
             return RedirectToAction("Account");
         }
 
+        public IActionResult NewPassword(ForgotPasswordModel forgotPasswordModel) 
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return View("NewPassword", forgotPasswordModel);
+            }
+
+            var cookie = Request.Cookies["CipherJourney"];
+            if (cookie != null) { 
+            
+                var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(cookie);
+                var userId = int.Parse(data["UserId"]);
+                SignUpModel signUpModel = new SignUpModel
+                {
+                    Email = data["Email"],
+                    Username = data["Username"],
+                };
+                var userLogged = DB_Queries.GetExistingUser(signUpModel, _context);
+                userLogged.Password = DB_Queries.HashPassword(forgotPasswordModel.ConfirmPassword, userLogged.Salt);
+                _context.SaveChanges();
+                TempData["PassChangeSuccess"] = "Your password was changed successfully!";
+                return RedirectToAction("Account");
+            }
+
+            User user = _context.Users.FirstOrDefault(u => u.Email == forgotPasswordModel.Email);
+            user.Password = DB_Queries.HashPassword(forgotPasswordModel.ConfirmPassword, user.Salt);
+            _context.SaveChanges();
+            TempData["PassChangeSuccess"] = "Your password was changed successfully!";
+            return RedirectToAction("Login", "Login");
+
+            return View();
+            // Hash and set new password
+
+        }
+
+        public IActionResult ForgotPassword() 
+        {
+            var userCookie = Request.Cookies["CipherJourney"];
+            if (userCookie == null)
+            {
+                return View("ForgotPassword");
+            }
+
+            var userData = JsonConvert.DeserializeObject<Dictionary<string, string>>(userCookie);
+            int userID = int.Parse(userData["UserId"]);
+
+            User user = _context.Users.FirstOrDefault(u => u.Id == userID);
+
+            DB_Queries.AddUserVerificationTokensPassword(user, _context);
+            DB_Queries.SendEmailVerification(user, _emailService, _context);
+
+            EmailVerificationModel emailVerificationModel = new EmailVerificationModel() 
+            { 
+                Email = user.Email
+            };
+
+            return View("EmailVerificationPassword", emailVerificationModel);
+        }
+
+        public IActionResult VerifyCode(EmailVerificationModel emailVerificationModel) {
+
+            if(!ModelState.IsValid) return View("EmailVerificationPassword", emailVerificationModel);
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == emailVerificationModel.Email);
+            var userVerificationTokens = _context.UserVerificationTokens.FirstOrDefault(u => u.UserID == user.Id);
+
+            if (userVerificationTokens.VerificationToken.Equals(emailVerificationModel.InputToken))
+            {
+                ForgotPasswordModel forgotPasswordModel = new ForgotPasswordModel()
+                {
+                    Email = emailVerificationModel.Email
+                };
+
+                return View("NewPassword", forgotPasswordModel);
+
+            }
+
+            ModelState.AddModelError(string.Empty, "Incorrect token.");
+            return View("EmailVerificationPassword", emailVerificationModel);
+        }
+
+        public IActionResult SendVerificationCode(EmailVerificationModel emailVerificationModel) 
+        {
+
+            User user = _context.Users.FirstOrDefault(u => u.Email == emailVerificationModel.Email || u.Username == emailVerificationModel.Email);
+            
+            UserVerificationTokens userVerificationToken = _context.UserVerificationTokens.FirstOrDefault(uvt => uvt.UserID == user.Id);
+            if (userVerificationToken == null) 
+            {    
+                DB_Queries.AddUserVerificationTokensPassword(user, _context);
+            }
+
+            DB_Queries.SendEmailVerification(user, _emailService, _context);
+
+            return View("EmailVerificationPassword", emailVerificationModel);
+        }
 
         public IActionResult Logout()
         {

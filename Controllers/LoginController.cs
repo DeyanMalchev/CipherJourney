@@ -48,7 +48,7 @@ namespace CipherJourney.Controllers
                 if (user.IsEmailVerified == false) 
                 {
 
-                    DB_Queries.VerifyUserEmail(user, _emailService, _context);
+                    DB_Queries.SendEmailVerification(user, _emailService, _context);
 
                     var emailVerificationModel = new EmailVerificationModel
                     {

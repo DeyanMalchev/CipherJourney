@@ -12,7 +12,7 @@ namespace CipherJourney.Services
 
         public DbSet<User> Users { get; set; }
         public DbSet<UserPoints> UserPoints { get; set; }
-        public DbSet<UsersUnverified> UsersUnverified { get; set; }
+        public DbSet<UserVerificationTokens> UserVerificationTokens { get; set; }
         public DbSet<Leaderboard> Leaderboard { get; set; }
 
         public DbSet<CipherModel> Ciphers { get; set; }

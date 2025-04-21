@@ -7,26 +7,51 @@
 <hr />
 <h1>You need to be logged in to use this service...</h1>
 
-
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-4"> 
         <form asp-controller="Login" asp-action="LoginUser" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
+
+            <div class="form-group mb-3">
                 <label asp-for="Info" class="control-label">Input username or e-mail</label>
                 <input asp-for="Info" class="form-control" />
                 <span asp-validation-for="Info" class="text-danger"></span>
             </div>
-            <div class="form-group">
+
+            <div class="form-group mb-3">
                 <label asp-for="Password" class="control-label">Password</label>
-                <input asp-for="Password" class="form-control" type="password"/>
+
+                <div class="d-flex align-items-center">
+                    <input asp-for="Password" class="form-control" type="password"/>
+                    <button type="button" class="btn btn-warning btn-sm me-2"
+                            onclick="window.location.href = '@Url.Action("ForgotPassword", "Account")';">
+                        Forgot Password?
+                    </button>
+
+                </div>
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <input type="submit" value="Log in" class="btn btn-primary" />
             </div>
         </form>
+
+        @if (TempData["PassChangeSuccess"] != null)
+        {
+            <div id="feedbackSuccess" class="alert alert-success" style="text-align: center;">
+                @TempData["PassChangeSuccess"]
+            </div>
+
+            <script>
+                // Simple script to hide the message after 5 seconds
+                setTimeout(() => {
+                    const feedbackElement = document.getElementById('feedbackSuccess');
+                    if (feedbackElement) {
+                         feedbackElement.style.display = 'none';
+                    }
+                }, 5000);
+            </script>
+        }
     </div>
 </div>
-
-

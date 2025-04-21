@@ -23,15 +23,20 @@
             <form asp-action="ChangePassword" asp-controller="Account" method="post">
                 <button type="submit" class="btn btn-warning">Change Password</button>
             </form>
-            <form asp-action="Logout" asp-controller="Account" method="post" class="mt-2">
-                <button type="submit" class="btn btn-secondary">Logout</button>
+            <form asp-action="ForgotPassword" asp-controller="Account" method="post">
+                <button type="submit" class="btn btn-warning">Forgot Password</button>
             </form>
+            
         </div>
         <div class="col-md-6">
             <h3>Danger Zone</h3>
+            <form asp-action="Logout" asp-controller="Account" method="post" class="mt-2">
+                <button type="submit" class="btn btn-secondary">Logout</button>
+            </form>
             <form asp-action="DeleteAccount" asp-controller="Account" method="post" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone!');">
                 <button type="submit" class="btn btn-danger">Delete Account</button>
             </form>
+
         </div>
     </div>
 </div>

@@ -36,20 +36,22 @@ using System.Text.RegularExpressions;
             _context.Users.Add(newUser);
             _context.SaveChanges();
 
-            var newUserUnverified = new UsersUnverified
+            var newUserUnverified = new UserVerificationTokens
             {
                 UserID = newUser.Id,
-                DateOfCreation = DateTime.Now
+                VerificationToken = GenerateVerificationToken(),
+                ExpirationDate = DateTime.Now.AddMinutes(15),
+                Purpose = "email"
             };
 
-            _context.UsersUnverified.Add(newUserUnverified);
+            _context.UserVerificationTokens.Add(newUserUnverified);
             _context.SaveChanges();
         }
 
-        public static UserPoints ConfigureTablesAfterVerification(User user, UsersUnverified userUnverified, CipherJourneyDBContext _context)
+        public static UserPoints ConfigureTablesAfterVerification(User user, UserVerificationTokens userVerificationTokens, CipherJourneyDBContext _context)
         {
             user.IsEmailVerified = true;
-            _context.UsersUnverified.Remove(userUnverified);
+            _context.UserVerificationTokens.Remove(userVerificationTokens);
             _context.SaveChanges();
 
             var userPoints = new UserPoints
@@ -76,7 +78,7 @@ using System.Text.RegularExpressions;
             return userPoints;
         }
 
-        public static void VerifyUserEmail(User user, IEmailService _emailService, CipherJourneyDBContext _context)
+        public static void SendEmailVerification(User user, IEmailService _emailService, CipherJourneyDBContext _context)
         {
 
             Regex emailRegex = new Regex(@"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|""(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|
@@ -84,12 +86,12 @@ using System.Text.RegularExpressions;
                                  |2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c
                                  \x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])");
 
-            var userUnverified = _context.UsersUnverified.FirstOrDefault(u => u.UserID == user.Id);
+            var userVerificationTokens = _context.UserVerificationTokens.FirstOrDefault(u => u.UserID == user.Id);
 
-            userUnverified.VerificationToken = GenerateVerificationToken();
+            userVerificationTokens.VerificationToken = GenerateVerificationToken();
             _context.SaveChanges();
 
-            _emailService.SendEmailAsync(user.Email, userUnverified.VerificationToken);
+            _emailService.SendEmailAsync(user.Email, userVerificationTokens.VerificationToken);
 
         }
 
@@ -249,10 +251,10 @@ using System.Text.RegularExpressions;
             var cipher = _context.Ciphers.Skip(cipherIndex).FirstOrDefault()?.Cipher;
 
             // 3. Generate cipher key (if needed)
-            int key = 3; // default
+            string key = "3"; // default
             if (cipher == "Caesar")
             {
-                key = random.Next(1, 25); // Avoid 0/26
+                key = random.Next(1, 25).ToString(); // Avoid 0/26
             }
 
 
@@ -260,7 +262,7 @@ using System.Text.RegularExpressions;
             {
                 Sentence = sentence,
                 Cipher = cipher,
-                Key = key.ToString(),
+                Key = key,
                 Date = currectDate
             };
 
@@ -288,6 +290,20 @@ using System.Text.RegularExpressions;
 
         public static DailyGameConfiguration GetDailyGameConfiguration(CipherJourneyDBContext _context) {
             return _context.DailyConfiguration.OrderByDescending(d => d.Date).FirstOrDefault();
+        }
+
+        public static void AddUserVerificationTokensPassword(User user, CipherJourneyDBContext _context)
+        {
+            UserVerificationTokens userVerificationTokens = new UserVerificationTokens()
+            {
+                UserID = user.Id,
+                VerificationToken = GenerateVerificationToken(),
+                Purpose = "password",
+                ExpirationDate = DateTime.Now.AddMinutes(15)
+            };
+
+            _context.UserVerificationTokens.Add(userVerificationTokens);
+            _context.SaveChanges();
         }
     }
 }
