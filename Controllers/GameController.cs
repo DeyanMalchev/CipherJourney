@@ -186,6 +186,7 @@ namespace CipherJourney.Controllers
             {
                 Console.WriteLine("DailyMode cookie not found or empty. Generating new game.");
                 // Use the Cookies class method here
+
                 GenerateGameDaily();
                 return RedirectToAction("Play");
             }
@@ -267,6 +268,7 @@ namespace CipherJourney.Controllers
             DailyGameConfiguration dailyGameConfiguration = DB_Queries.GetDailyGameConfiguration(_context);
 
             UserCompletedDaily userCompletedDaily = DB_Queries.GetUserCompletedDaily(_context, Request);
+
 
 
             bool isCompleted = false;

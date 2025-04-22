@@ -250,7 +250,7 @@ using System.Text.RegularExpressions;
             int cipherIndex = random.Next(0, cipherCount);
             var cipher = _context.Ciphers.Skip(cipherIndex).FirstOrDefault()?.Cipher;
 
-            // 3. Generate cipher key (if needed)
+            // 3. Generate cipher key 
             string key = "3"; // default
             if (cipher == "Caesar")
             {
@@ -273,6 +273,8 @@ using System.Text.RegularExpressions;
             var allCompletedDailyUsers = _context.UsersCompletedDaily.ToList();
             _context.UsersCompletedDaily.RemoveRange(_context.UsersCompletedDaily);
             _context.SaveChanges();
+
+            response.Cookies.Delete("DailyMode");
         }
 
         public static UserCompletedDaily GetUserCompletedDaily(CipherJourneyDBContext _context, HttpRequest request) 
@@ -304,6 +306,10 @@ using System.Text.RegularExpressions;
 
             _context.UserVerificationTokens.Add(userVerificationTokens);
             _context.SaveChanges();
+        }
+
+        public static UserVerificationTokens GetUserVerificationTokens(User user, CipherJourneyDBContext _context) {
+            return _context.UserVerificationTokens.FirstOrDefault(u => u.UserID == user.Id);
         }
     }
 }

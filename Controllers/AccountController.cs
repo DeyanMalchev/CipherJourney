@@ -107,12 +107,13 @@ namespace CipherJourney.Controllers
             User user = _context.Users.FirstOrDefault(u => u.Email == forgotPasswordModel.Email);
             user.Password = DB_Queries.HashPassword(forgotPasswordModel.ConfirmPassword, user.Salt);
             _context.SaveChanges();
+
+            UserVerificationTokens userVerificationToken = _context.UserVerificationTokens.FirstOrDefault(u => u.UserID == user.Id);
+            _context.UserVerificationTokens.Remove(userVerificationToken);
+
             TempData["PassChangeSuccess"] = "Your password was changed successfully!";
+
             return RedirectToAction("Login", "Login");
-
-            return View();
-            // Hash and set new password
-
         }
 
         public IActionResult ForgotPassword() 
@@ -128,7 +129,13 @@ namespace CipherJourney.Controllers
 
             User user = _context.Users.FirstOrDefault(u => u.Id == userID);
 
-            DB_Queries.AddUserVerificationTokensPassword(user, _context);
+            var uvt = DB_Queries.GetUserVerificationTokens(user, _context);
+
+            if (uvt == null) 
+            { 
+                DB_Queries.AddUserVerificationTokensPassword(user, _context);
+            }
+
             DB_Queries.SendEmailVerification(user, _emailService, _context);
 
             EmailVerificationModel emailVerificationModel = new EmailVerificationModel() 
