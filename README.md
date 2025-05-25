@@ -1,87 +1,86 @@
-# CipherJourney
+﻿# CipherJourney
 
-CipherJourney is a fun and challenging puzzle game where players decode clues, crack ciphers, and solve intricate puzzles to progress. Inspired by games like Wordle, CipherJourney combines entertainment with brain-teasing challenges, offering users a unique and enjoyable experience.
+**CipherJourney** is a browser-based puzzle game where players must decode encrypted sentences using logic and deduction. The game focuses on word-level cipher solving and offers a new challenge every day.
 
 ## Table of Contents
-1. [Introduction](#introduction)
+1. [Overview](#overview)
 2. [Features](#features)
 3. [Installation Instructions](#installation-instructions)
 4. [Usage Guide](#usage-guide)
-5. [Screenshots](#screenshots)
-6. [Contributing](#contributing)
-7. [License](#license)
+5. [Future Improvements](#future-improvements)
+6. [License](#license)
 
-## Introduction
+## Overview
 
-CipherJourney challenges players to think critically and solve puzzles in a fun, interactive way. Each level presents a new cipher or puzzle, with increasing difficulty, making it perfect for both casual gamers and puzzle enthusiasts.
+CipherJourney challenges players to decrypt a ciphered sentence by guessing words one at a time. It’s inspired by games like *Wordle*, but instead of guessing letters, players must uncover full words encrypted by classic cipher algorithms.
 
-### Core Objectives
-* Provide an engaging, puzzle-solving experience.
-* Create a balance of challenge and fun for all age groups.
-* Encourage players to learn basic cryptography concepts while playing.
+This personal project helped me understand core principles of:
+- ASP.NET Core MVC architecture
+- Database schema design and EF Core migrations
+- Cookie-based authentication and game state management
+- Data protection and server-client interaction
+- Dynamic frontend interactions using AJAX
+- Good practices for designing extendable systems
 
 ## Features
-* **Daily Cipher Challenge**: A new puzzle each day to test your skills.
-* **Player Progression**: Track your achievements, scores, and milestones.
-* **Verification System**: Ensure account security with email verification.
-* **Intuitive Interface**: Simple and clean UI for seamless gameplay.
+
+- 🔐 **Login and account system** — with email verification and password recovery
+- 📆 **Daily challenge** — one encrypted sentence each day, shared among all users
+- 🧠 **Points system** — earn points based on how quickly (in how few guesses) you solve the puzzle
+- 📊 **Leaderboard** — see top 10 players and your rank
+- 💾 **Persistent game state** — progress is saved in cookies and validated server-side
+- 🧩 **Multiple classic ciphers supported** — such as Caesar and Atbash
 
 ## Installation Instructions
 
 ### Prerequisites
-* **.NET 6.0 SDK** or later
-* **SQL Server** or compatible database
-* Basic understanding of C# and ASP.NET Core
 
-### Setup Instructions
+- [.NET 6 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+- SQL Server or SQL Server Express (localdb is also supported)
+- Visual Studio or another IDE like JetBrains Rider (optional)
+
+### Setup
+
 1. Clone the repository:
 ```bash
 git clone https://github.com/<your-username>/CipherJourney.git
 cd CipherJourney
 ```
 
-2. Install dependencies:
-```bash
-dotnet restore
-```
+2. Configure the connection string in `appsettings.json` to point to your SQL Server instance.
 
-3. Set up the database:
-   * Update the `appsettings.json` file with your database connection string.
-   * Run the migrations:
+3. Apply all migrations:
 ```bash
 dotnet ef database update
 ```
 
-4. Run the project:
+> This will automatically create the schema and seed required data (cipher types, example sentences, etc.)
+
+4. Run the application:
 ```bash
 dotnet run
 ```
 
-5. Open the application in your browser at `http://localhost:<port>`
+Then open `http://localhost:<port>` in your browser.
 
 ## Usage Guide
-1. **Sign Up and Verify**:
-   * Register with your email and verify your account to start playing.
-2. **Solve Puzzles**:
-   * Choose a daily challenge or previous puzzles.
-   * Enter solutions and progress through levels.
-3. **Track Progress**:
-   * Monitor scores and achievements on your profile page.
 
-## Contributing
-We welcome contributions from the community! To contribute:
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix:
-```bash
-git checkout -b feature/your-feature-name
-```
+- Register an account and verify your email.
+- Each day, you'll receive a new encrypted sentence.
+- Guess one word at a time to try to reveal the original sentence.
+- Points are awarded based on how few guesses it takes to solve the challenge.
+- You can view your account details, stats, and the global leaderboard.
 
-3. Make your changes and commit them:
-```bash
-git commit -m "Add your message here"
-```
+## Future Improvements
 
-4. Push your changes and create a pull request.
+Some planned enhancements to the project include:
+
+- ⏱ **Timed Mode** — A game mode where players compete to solve the sentence as fast as possible.
+- 💡 **Hint System** — Players will be able to spend points or guesses to reveal partial words or clues.
+- 🌍 **Multiplayer Sharing** — Users will be able to create their own encrypted sentence and challenge friends with a shareable link.
+- 🌐 **Localization Support** — Add support for multiple languages including Bulgarian, and allow daily challenges in different languages.
+- 📱 **Mobile-friendly UI** — Improve responsive design and accessibility for mobile users.
 
 ## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+
+This project is licensed under the MIT License.
