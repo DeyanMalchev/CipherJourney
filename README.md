@@ -47,9 +47,32 @@ git clone https://github.com/<your-username>/CipherJourney.git
 cd CipherJourney
 ```
 
-2. Configure the connection string in `appsettings.json` to point to your SQL Server instance.
+2. Create an `appsettings.json` file.
 
-3. Apply all migrations:
+3. Copy over the following into `appsettings.json`:
+```
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=YourSqlServerName;Initial Catalog=CipherJourney;Integrated Security=True;Trust Server Certificate=True"
+  },
+  "Email": {
+    "CipherJourney": "youemail@etc.com",
+    "AppPass": "your app pass here"
+  }
+}
+```
+4. Configure the connection string in `appsettings.json` to point to your SQL Server instance.
+
+5. Configure your 'AppPass' in your google account and put it in the `AppPass` section in `appsettings.json`.
+
+6. Apply all migrations:
 ```bash
 dotnet ef database update
 ```
