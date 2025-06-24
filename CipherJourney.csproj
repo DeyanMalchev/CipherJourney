@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <StartupObject>CipherJourney.Program</StartupObject>
+    <UserSecretsId>db432c22-f94a-403f-99f9-28de6d603221</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

@@ -37,7 +37,7 @@ namespace CipherJourney.Services
                     client.UseDefaultCredentials = false;
                     client.Credentials = new NetworkCredential(
                         _configuration["Email:CipherJourney"],
-                        _configuration["Email:AppPass"]);
+                        _configuration["Email:CipherJourney:AppPass"]);
 
                     try
                     {
@@ -72,7 +72,7 @@ namespace CipherJourney.Services
                     client.UseDefaultCredentials = false;
                     client.Credentials = new NetworkCredential(
                         _configuration["Email:CipherJourney"],
-                        _configuration["Email:AppPass"]);
+                        _configuration["Email:CipherJourney:AppPass"]);
 
                     try
                     {

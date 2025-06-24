@@ -47,39 +47,36 @@ git clone https://github.com/<your-username>/CipherJourney.git
 cd CipherJourney
 ```
 
-2. Create an `appsettings.json` file.
-
-3. Copy over the following into `appsettings.json`:
+2. Open `CipherJourney.csproj` and find the following line:
 ```
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  },
-  "AllowedHosts": "*",
-  "ConnectionStrings": {
-    "DefaultConnection": "Data Source=YourSqlServerName;Initial Catalog=CipherJourney;Integrated Security=True;Trust Server Certificate=True"
-  },
-  "Email": {
-    "CipherJourney": "youemail@etc.com",
-    "AppPass": "your app pass here"
-  }
-}
+    <UserSecretsId>user-secret-id</UserSecretsId>
 ```
-4. Configure the connection string in `appsettings.json` to point to your SQL Server instance.
+Replace "user-secret-id" with your user-secret-id, or alternatively you can delete that line and run the following command.
 
-5. Configure your 'AppPass' in your google account and put it in the `AppPass` section in `appsettings.json`.
+```bash
+dotnet user-secrets init
+```
 
-6. Apply all migrations:
+After that, run there 2 command and replace the needed information:
+```bash
+dotnet user-secrets set "Email:CipherJourney" "your-email@gmail.com"
+dotnet user-secrets set "Email:AppPass" "your-app-password"
+```
+
+- You need to setup an app pass for your google account.
+- This is needed for features that require sending and e-mail. They are used by the application for sending an e-mail to the user with their verification code upon signing up.
+- This is needed because the application uses simple SMTP for sending e-mails.
+
+3. Configure the connection string in `appsettings.json` to point to your SQL Server instance.
+
+4. Apply all migrations:
 ```bash
 dotnet ef database update
 ```
 
 > This will automatically create the schema and seed required data (cipher types, example sentences, etc.)
 
-4. Run the application:
+5. Run the application:
 ```bash
 dotnet run
 ```
@@ -103,6 +100,14 @@ Some planned enhancements to the project include:
 - 🌍 **Multiplayer Sharing** — Users will be able to create their own encrypted sentence and challenge friends with a shareable link.
 - 🌐 **Localization Support** — Add support for multiple languages including Bulgarian, and allow daily challenges in different languages.
 - 📱 **Mobile-friendly UI** — Improve responsive design and accessibility for mobile users.
+
+On the development side, there are a lot of improvments to be made regarding writing the code:
+
+- There are a lot stuff that could and should be encapsulated. 
+- Since i am using regular coockies, the data integrity can be compromised since they can be edited manually. Currently there is no protection against that.
+- There are a lot of places where code should be refactored in order to be more readable.
+- There is a lack of comments to help, guide and introduce to what is happening under the hood.
+- A background service should be made to handle the daily configuration changes.
 
 ## License
 

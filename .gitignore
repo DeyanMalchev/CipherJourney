@@ -19,9 +19,6 @@ mono_crash.*
 #Ignore clientSecret
 wwwroot/clientSecret.json
 
-#Ignore appsettings
-appsettings.json
-
 
 # Build results
 [Dd]ebug/
