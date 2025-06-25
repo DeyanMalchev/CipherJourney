@@ -42,7 +42,7 @@ This personal project helped me understand core principles of:
 ### Setup
 
 1. Clone the repository:
-```bash
+```powershell
 git clone https://github.com/<your-username>/CipherJourney.git
 cd CipherJourney
 ```
@@ -51,14 +51,15 @@ cd CipherJourney
 ```
     <UserSecretsId>user-secret-id</UserSecretsId>
 ```
-Replace "user-secret-id" with your user-secret-id, or alternatively you can delete that line and run the following command.
 
-```bash
+Replace "user-secret-id" with your user-secret-id, or alternatively you can delete that line and run the following command.
+```powershell
 dotnet user-secrets init
 ```
+> This will automatically add (and create if needed) your user-secret-id.
 
 After that, run there 2 command and replace the needed information:
-```bash
+```powershell
 dotnet user-secrets set "Email:CipherJourney" "your-email@gmail.com"
 dotnet user-secrets set "Email:AppPass" "your-app-password"
 ```
@@ -69,15 +70,21 @@ dotnet user-secrets set "Email:AppPass" "your-app-password"
 
 3. Configure the connection string in `appsettings.json` to point to your SQL Server instance.
 
-4. Apply all migrations:
-```bash
+4. Run the following commands to install the dependencies:
+```powershell
+dotnet restore
+dotnet build
+```
+
+5. Apply all migrations:
+```powershell
 dotnet ef database update
 ```
 
 > This will automatically create the schema and seed required data (cipher types, example sentences, etc.)
 
-5. Run the application:
-```bash
+6. Run the application:
+```powershell
 dotnet run
 ```
 
